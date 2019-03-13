@@ -18,8 +18,8 @@ fi
 
 rm check.out 2>/dev/null 
 
-TRACK="$1"
-SIDE="$2"
+PTRACK="$1"
+PSIDE="$2"
 shift
 shift
 
@@ -87,9 +87,10 @@ done
 
   >3
 
-for LIST in `/bin/ls -1 split/out???-track${TRACK}side${SIDE}.raw` # for x200
+for LIST in `/bin/ls -1 split/out???-track${PTRACK}side${PSIDE}.raw` # for x200
 do   
 
+  echo $LIST>>3
   #OUTPUT_TYPE=2 # Color GCR bits out (for valid sectors)
   ##OUTPUT_TYPE=3 # Flux out (for valid sectors)
   ##OUTPUT_TYPE=4 # no output # 3=flux+colout
@@ -126,9 +127,16 @@ do
   #------------------------------------------------------------------------------
 
     TRACK=`echo "$LIST" | sed "s/.*track//" | sed "s/side.*//"`
+    SIDE=`echo "$LIST" | sed "s/.*side//" | sed "s/.raw//"`
     TRACK=`expr $TRACK + 1`
+    PHYSTRACK=$TRACK
+    if [ $SIDE -eq 1 ]
+    then
+      TRACK=`expr $TRACK + 35`
+      echo "$TRACK" >>3
+    fi
   #### only do single for moment?
-  if [ $TRACK -le 35 ]
+  if [ $PHYSTRACK -le 35 ]
   then
   rm bitmap.dat 2>/dev/null
 
@@ -176,22 +184,22 @@ do
     #1292.00000000000000000000
 
 
-    if [ $TRACK -ge 0 -a $TRACK -le 17 ]
+    if [ $PHYSTRACK -ge 0 -a $PHYSTRACK -le 17 ]
     then
 	   # echo "SPEED 3"
 	    F=1050; F=1000
     fi
-    if [ $TRACK -ge 18 -a $TRACK -le 24 ]
+    if [ $PHYSTRACK -ge 18 -a $PHYSTRACK -le 24 ]
     then
 	    #echo "SPEED 2"
 	    F=1130 ; F=1080
     fi
-    if [ $TRACK -ge 25 -a $TRACK -le 30 ]
+    if [ $PHYSTRACK -ge 25 -a $PHYSTRACK -le 30 ]
     then
 	    #echo "SPEED 1"
 	    F=1210 ; F=1160
     fi
-    if [ $TRACK -ge 31 -a $TRACK -le 50 ]
+    if [ $PHYSTRACK -ge 31 -a $PHYSTRACK -le 50 ]
     then
 	    #echo "SPEED 0"
 	    F=1290 ; F=1240

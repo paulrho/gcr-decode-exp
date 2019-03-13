@@ -75,11 +75,27 @@ int sectors_per_track(int track)
    if (track>=1 && track<18) return 21;                    // 00..20
    else if (track>=18 && track <25) return 19;
    else if (track>=25 && track <31) return 18;
-   else if (track>=31 && track <50) return 17;
+   else if (track>=31 && track <=35) return 17;
+   else if (track>=1+35 && track<18+35) return 21;                    // 00..20
+   else if (track>=18+35 && track <25+35) return 19;
+   else if (track>=25+35 && track <31+35) return 18;
+   else if (track>=31+35 && track <=35+35) return 17;
    else return -1;
 }
 
-enum { SM_MISSING,SM_GOOD,SM_GOODISH,SM_CKM,SM_BAD };
+/**
+ *         /HEADER.*BAD . SECTOR/ { if (v[$12][$9]<10-2) { t[$12]=1; v[$12][$9]++; }; next; }  'b' current 'x'
+ *         /BAD!.*post:000[01]/    { if (v[$12][$9]<10-1) { t[$12]=1; v[$12][$9]=9; }; next; } 'c'
+ *         /BAD/                   { if (v[$12][$9]<10-2) { t[$12]=1; v[$12][$9]++; }; next; } 'X' bad
+ *         /GOOD.*NONCODE/         { if (v[$12][$9]<10-1) { t[$12]=1; v[$12][$9]=10; }; next; } 'C' - odd : good but with a noncode
+ *         /GOOD/                  { if (v[$12][$9]<30)   { t[$12]=1; v[$12][$9]=20; } }       'P' - post >1
+ *         /GOOD.*post:0001/       { if (v[$12][$9]<40)   { t[$12]=1; v[$12][$9]=30; } }       ':' = post=1
+ *         /GOOD.*post:0000/       { t[$12]=1; v[$12][$9]=40; }                                '.' = good post=0
+ **/
+
+//     ?           .        :         P         N         C       X       H             B              b
+enum { SM_MISSING, SM_GOOD, SM_GOOD1, SM_GOODP, SM_GOODN, SM_CKM, SM_BAD, SM_HEADER_OK, SM_HEADER_ODD, SM_HEADER_BAD };
+char *sectormap_char="?.:PNCXHBb";
 void init_sectormap()
 {
    for (int i=0; i<TOPSEC; ++i) sectormap[i]=SM_MISSING;
@@ -87,7 +103,7 @@ void init_sectormap()
    FILE *fp=fopen("bitmap.dat","rb");
    if (fp==NULL) return;
    int n=fread(sectormap, 1, TOPSEC, fp);
-   fprintf(stderr,"track %02d bitmap: ",sectormap_track);
+   fprintf(stderr,"track %02d bitmap_d: ",sectormap_track);
    for (int i=0; i<n; ++i) fprintf(stderr,"%d ",sectormap[i]);
    fprintf(stderr,"\n");
    fclose(fp);
@@ -103,29 +119,23 @@ int save_sectormap()
    }
    for (int i=0; i<TOPSEC; ++i) fprintf(fp,"%c",sectormap[i]);
    fclose(fp);
+   fprintf(stderr,"track %02d bitmap_c: ",sectormap_track);
+   for (int i=0; i<TOPSEC; ++i) fprintf(stderr,"%c",i<sectors_per_track(sectormap_track) ? sectormap_char[sectormap[i]] : ' ');
+   fprintf(stderr,"\n");
    return 0;
 }
 
 void update_sectormap(int track, int sector, int state)
 {
-   if (track==sectormap_track && sector>=0 && sector<sectors_per_track(track)) {
-      switch (sectormap[sector]) {
-        case SM_MISSING:
-        case SM_BAD:
-           sectormap[sector]=state; break;
-        case SM_CKM:
-           if (state==SM_GOOD || state==SM_GOODISH) sectormap[sector]=state;
-           break;
-        case SM_GOODISH:
-           if (state==SM_GOOD) sectormap[sector]=state;
-           break;
-      }
+   if (track==sectormap_track && sector>=0 && sector<TOPSEC && sector<sectors_per_track(track)) {
+      if (state>0 && state<sectormap[sector] || sectormap[sector]==0) sectormap[sector]=state;
    }
 }
 
 int is_good_sectormap()
 {
-   for (int i=0; i<sectors_per_track(sectormap_track); ++i) if (sectormap[i]!=SM_GOOD) return 0;
+   // allow GOOD1 too
+   for (int i=0; i<sectors_per_track(sectormap_track); ++i) if (sectormap[i]!=SM_GOOD && sectormap[i]!=SM_GOOD1) return 0;
    return 1;
 }
 
@@ -498,7 +508,7 @@ void write_datablock_to_file()
    // write data block to file
    char filename[80];
    char suffix[80];
-   int  state=-1;
+   int  state=SM_MISSING;
 
    if (found_sector>=0 && found_sector<=20) {
       keep_track=found_track;                              // just for raw
@@ -523,11 +533,15 @@ void write_datablock_to_file()
          // of course, it depends on the order whether the file below gets written first
       }
       else {
-         state=SM_GOODISH;
-         if (noncode || adv_wrongbits>0 || (((char)databuf[256+1])&0xFFF)!=0x00 || (((char)databuf[256+2])&0xFFF)!=0x00)
+         if (noncode || adv_wrongbits>0 || (((char)databuf[256+1])&0xFFF)!=0x00 || (((char)databuf[256+2])&0xFFF)!=0x00) {
             sprintf(suffix,"x%04x-w%02d-p%02x%02x%s.dat",Fletcher16(databuf,256),
                     adv_wrongbits,(((char)databuf[256+1])&0xFFF), (((char)databuf[256+2])&0xFFF)!=0x00, (noncode) ? "-nonc" : ""
                     );
+            int post=  (((char)databuf[256+1])&0xFF)<<8 || (((char)databuf[256+2])&0xFF);
+            if (post>1) state=SM_GOODP;
+            else if (post==1) state=SM_GOOD1;
+            else state=SM_GOODN;                           // dont think wrongbits used (noncode)
+         }
          //else
          //sprintf(suffix,"-%04x.dat",Fletcher16(databuf,256));
          // otherwise - just use what we've already setup
@@ -685,6 +699,17 @@ void addbit(int bit)
             }
             else found_track=(-1);
             if (save_raw==2 && found_sector==0) switchoffraw(20);
+            if (sectormap_track>0) {
+               int state;
+               state=SM_HEADER_BAD;
+               if (databuf[1]==((databuf[2]^databuf[3]^databuf[4]^databuf[5])&0xFF)) {
+                  if (databuf[6]==0x0F && databuf[7]==0x0F)
+                     state=SM_HEADER_OK;
+                  else
+                     state=SM_HEADER_ODD;
+               }
+               update_sectormap(found_track,found_sector,state);
+            }
             wraplen=0;
          }
       }
