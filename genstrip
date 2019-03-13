@@ -1,0 +1,94 @@
+#!/bin/sh
+# two pixels are 5 gcr bits = 1 nibble -> 4 pixels = 1 byte
+
+# skip to data header
+#000
+# beige line
+for i in {1..1280}
+do
+	echo -n "200 160 0  "
+done
+echo ""
+
+# beige line
+for i in {1..1280}
+do
+	echo -n "200 160 0  "
+done
+echo ""
+
+# beige line
+for i in {1..1280}
+do
+	echo -n "200 160 0  "
+done
+echo ""
+# beige line
+for l in {1..3}
+do
+for i in {1..8}
+do
+	echo -n "0 0 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+done
+for i in {1..68}
+do
+	echo -n "255 255 255  "
+done
+#100
+# header data byte
+	echo -n "0 0 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+#104
+# 256 data bytes
+for i in {1..16}
+do
+	echo -n "0 0 0  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+for j in {1..15}
+do
+	echo -n "220 220 180  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+done
+done
+#1128
+# ckm
+	echo -n "127 127 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+
+	echo -n "127 127 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+	echo -n "255 255 255  "
+
+# half byte
+	echo -n "127 127 255  "
+	echo -n "255 255 255  "
+# 3 greens
+	echo -n "190 255 190  "
+	echo -n "190 255 190  "
+	echo -n "190 255 190  "
+#1140
+for i in {1..139}
+do
+	echo -n "255 255 255  "
+done
+echo ""
+done
+
+
+
+
+
+
+
