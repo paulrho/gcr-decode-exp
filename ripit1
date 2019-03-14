@@ -315,7 +315,7 @@ do
   fi
 
   # accumulate
-  if [ 1 -eq 0 ]
+  if [ 1 -eq 1 ]
   then
     cat /var/tmp/1 >>/var/tmp/1.col
     cat /var/tmp/2 >>/var/tmp/all2.out

@@ -5,6 +5,15 @@
 #include <dirent.h>
 #include <unistd.h>
 
+// dissappear it
+//#define dbgprintf(...)  { }
+#define dbgprintf(...)    donothing()
+#define dbgprintf2    fprintf
+
+void donothing()
+{
+};
+
 // forward declare
 void showflux();
 void switchonraw();
@@ -105,9 +114,9 @@ void init_sectormap()
    FILE *fp=fopen("bitmap.dat","rb");
    if (fp==NULL) return;
    int n=fread(sectormap, 1, TOPSEC, fp);
-   fprintf(stderr,"track %02d bitmap_d: ",sectormap_track);
-   for (int i=0; i<n; ++i) fprintf(stderr,"%d ",sectormap[i]);
-   fprintf(stderr,"\n");
+   dbgprintf(stderr,"track %02d bitmap_d: ",sectormap_track);
+   for (int i=0; i<n; ++i) dbgprintf(stderr,"%d ",sectormap[i]);
+   dbgprintf(stderr,"\n");
    fclose(fp);
 }
 
@@ -116,14 +125,14 @@ int save_sectormap()
    FILE *fp=fopen("bitmap.dat","wb");
 
    if (fp==NULL) {
-      fprintf(stderr,"could not save bitmap\n");
+      dbgprintf(stderr,"could not save bitmap\n");
       return -1;
    }
    for (int i=0; i<TOPSEC; ++i) fprintf(fp,"%c",sectormap[i]);
    fclose(fp);
-   fprintf(stderr,"track %02d bitmap_c: ",sectormap_track);
-   for (int i=0; i<TOPSEC; ++i) fprintf(stderr,"%c",i<sectors_per_track(sectormap_track) ? sectormap_char[sectormap[i]] : ' ');
-   fprintf(stderr,"\n");
+   dbgprintf(stderr,"track %02d bitmap_c: ",sectormap_track);
+   for (int i=0; i<TOPSEC; ++i) dbgprintf(stderr,"%c",i<sectors_per_track(sectormap_track) ? sectormap_char[sectormap[i]] : ' ');
+   dbgprintf(stderr,"\n");
 
    // last line
    fprintf(stderr,"TRACK %2d ",sectormap_track);
@@ -151,12 +160,12 @@ int is_good_sectormap()
 
 void printbucketedges()
 {
-   fprintf(stderr,"\nbucket edges <%.1f <%.1f <%.1f(1) <%.1f(01) <%.1f(001)\n",
-           p1*0.5,
-           p1*(0.75-0.05*adv_timing),
-           p2*0.5+p1*(0.50+0.05*adv_timing),
-           p2    +p1*(0.50+0.05*adv_timing),
-           p2    +p1*2.0);
+   dbgprintf(stderr,"\nbucket edges <%.1f <%.1f <%.1f(1) <%.1f(01) <%.1f(001)\n",
+             p1*0.5,
+             p1*(0.75-0.05*adv_timing),
+             p2*0.5+p1*(0.50+0.05*adv_timing),
+             p2    +p1*(0.50+0.05*adv_timing),
+             p2    +p1*2.0);
 }
 
 void bitpipe_clear()
@@ -170,39 +179,39 @@ void bitpipe_clear()
 void bitpipe_histogram()
 {
    // show map
-   //fprintf(stderr,"\nHistogram: Track %02d Sector %02d\n",found_track,found_sector); // we dont know yet
-   fprintf(stderr,"\nHistogram:\n");
+   //dbgprintf(stderr,"\nHistogram: Track %02d Sector %02d\n",found_track,found_sector); // we dont know yet
+   dbgprintf(stderr,"\nHistogram:\n");
    for (int l=10; l>=0; l--) {                             // for each line
       for (int i=1; i<MAXBUCK; ++i) {
          //instead of pk could use 10000
-         if (l==0 && buck[i]==1) fprintf(stderr,".");
-         else if (l==0 && buck[i]<=pk/10/2*l && buck[i]!=0) fprintf(stderr,":");
-         else if (buck[i]>pk/10*l) fprintf(stderr,"*"); else fprintf(stderr," ");
+         if (l==0 && buck[i]==1) dbgprintf(stderr,".");
+         else if (l==0 && buck[i]<=pk/10/2*l && buck[i]!=0) dbgprintf(stderr,":");
+         else if (buck[i]>pk/10*l) dbgprintf(stderr,"*"); else dbgprintf(stderr," ");
       }
-      fprintf(stderr,"\n");
+      dbgprintf(stderr,"\n");
       if (l==0) {
-         for (int i=1; i<MAXBUCK; i+=10) fprintf(stderr,"         0");
-         fprintf(stderr,"\n");
+         for (int i=1; i<MAXBUCK; i+=10) dbgprintf(stderr,"         0");
+         dbgprintf(stderr,"\n");
       }
    }
    for (int i=1; i<MAXBUCK; i++) {
       if (i==5 || i==8 || i==30 || i==47 || i==81)
-         fprintf(stderr,"L");
-      else fprintf(stderr,"_");
+         dbgprintf(stderr,"L");
+      else dbgprintf(stderr,"_");
    }
-   fprintf(stderr,"\n");
+   dbgprintf(stderr,"\n");
    for (int i=1; i<MAXBUCK; i++) {
       if (i==1+(int)(p1*0.5) || i==1+(int)(p1*(0.75)) || i==1+(int)(p2*0.5+p1*(0.5)) || i==1+(int)(p2+p1*0.5) || i==1+(int)(p2+p1*2.0))
-         fprintf(stderr,"*");
-      else fprintf(stderr," ");
+         dbgprintf(stderr,"*");
+      else dbgprintf(stderr," ");
    }
-   fprintf(stderr,"\n");
+   dbgprintf(stderr,"\n");
    // ct <5 <8 <30 <47 <81 for 1000 (track1-18)
 }
 
 void bitpipe_new(int c)
 {
-   //           fprintf(stderr,"c=%d\n",c);
+   //           dbgprintf(stderr,"c=%d\n",c);
    // for now - just accumulate!
    if (0) if (pip[pt]>0) buck[pip[pt]]--;                  // revolving - take old off
    if (c>0 && c<MAXBUCK) buck[c]++;
@@ -227,12 +236,12 @@ void bitpipe_new(int c)
       if (pki<50) pki/=2;                                  // special work around - we didn't get the top value - too few
       else pki/=3;
 
-      fprintf(stderr,"\nPeak of %d at %d\n",pk,pki);
+      dbgprintf(stderr,"\nPeak of %d at %d\n",pk,pki);
       p1=pki+3-3   +1;                                     // one less and no good  +0 few errs, +1,+2 good   +3 very bad
       if (p1<10) p1=10;
       p2=p1*2+3-3  +1;                                     // one less and no good
 
-      if (111) fprintf(stderr,"\nPeak %f %f\n",p1,p2);
+      if (111) dbgprintf(stderr,"\nPeak %f %f\n",p1,p2);
       pk=save_pk;
 
       if (00) {
@@ -253,7 +262,7 @@ void dotimingprofile(/*int fromi*/)
 
    s=0;
    bitpipe_clear();
-   fprintf(stderr,"fromi=%d\n",ix);
+   dbgprintf(stderr,"fromi=%d\n",ix);
    for (int i=fromi; i<nx; i++) {                          // dont need to worry about reverse - same result
       c=rlebuff[i]; tot+=c;
       if (s==1) if (c!=0 && c!=255) bitpipe_new(c+lastc);
@@ -262,7 +271,7 @@ void dotimingprofile(/*int fromi*/)
       lastc=c;
       if (tot> 20 *10*(256+80)) break;
    }
-   fprintf(stderr,"Block preview done Track %02d Sector %02d\n",found_track,found_sector);
+   dbgprintf(stderr,"Block preview done Track %02d Sector %02d\n",found_track,found_sector);
    if (1) {                                                // 0 = keep these values!
       p1=save_p1;
       p2=save_p2;
@@ -351,13 +360,13 @@ int decode(long in)
      case 0x1E: return 0x0E;
      case 0x15: return 0x0F;
 
-     default: fprintf(stderr," (NON-GCR-CODE %s%s%s%s%s)",
-                      in&0x10 ? "1" : "0",
-                      in&0x08 ? "1" : "0",
-                      in&0x04 ? "1" : "0",
-                      in&0x02 ? "1" : "0",
-                      in&0x01 ? "1" : "0"
-                      );
+     default: dbgprintf(stderr," (NON-GCR-CODE %s%s%s%s%s)",
+                        in&0x10 ? "1" : "0",
+                        in&0x08 ? "1" : "0",
+                        in&0x04 ? "1" : "0",
+                        in&0x02 ? "1" : "0",
+                        in&0x01 ? "1" : "0"
+                        );
         return -1;
         //return 0x00;
    }
@@ -395,7 +404,7 @@ void advanceline()
 
 void writeoutrestofline()
 {
-   fprintf(stderr,"writing out %d to %d\n",pxc,xsize);
+   dbgprintf(stderr,"writing out %d to %d\n",pxc,xsize);
    for (int i=pxc; i<xsize; ++i) pixel(255,255,255);
 }
 
@@ -404,23 +413,23 @@ void display_quintel_as_twopixels()
    int r,g,b;
 
    switch ((keep&28)>>2) {
-     case 0x00: r=255; g=255; b=255;  fprintf(stderr,"(Top000) "); break; // white
-     case 0x01: r=255; g=255; b=0; break;                                 //yellow
-     case 0x02: r=127; g=127; b=190; break;                               // see if this is clearer -  just grey
-     case 0x03: r=127; g=0; b=127; break;                                 // dk purple
-     case 0x04: r=255; g=0; b=255; break;                                 // pink/magenta
-     case 0x05: r=0; g=255; b=0; break;                                   //green
-     case 0x06: r=0; g=0; b=127; break;                                   // dk blue
-     case 0x07: r=0; g=0; b=0; break;                                     //black
+     case 0x00: r=255; g=255; b=255;  dbgprintf(stderr,"(Top000) "); break; // white
+     case 0x01: r=255; g=255; b=0; break;                                   //yellow
+     case 0x02: r=127; g=127; b=190; break;                                 // see if this is clearer -  just grey
+     case 0x03: r=127; g=0; b=127; break;                                   // dk purple
+     case 0x04: r=255; g=0; b=255; break;                                   // pink/magenta
+     case 0x05: r=0; g=255; b=0; break;                                     //green
+     case 0x06: r=0; g=0; b=127; break;                                     // dk blue
+     case 0x07: r=0; g=0; b=0; break;                                       //black
    }
    if (colout_notvalidGCR && r==255 && g==255 && b==255) { r=160, b=90, g=90; }
    printf("%d %d %d  ",r,g,b);
    pxc++;
    if (pxc>=xsize) { fprintf(stdout,"\n"); pxc-=xsize; }
    switch ((keep&0x03)) {
-     case 0x00: r=255; g=255; b=255;  fprintf(stderr,"(Bot00) "); break; // white
+     case 0x00: r=255; g=255; b=255;  dbgprintf(stderr,"(Bot00) "); break; // white
      case 0x01: r=0; g=255; b=0; break;
-     case 0x02: r=0; g=127; b=255; break;                                // but this is lt blue
+     case 0x02: r=0; g=127; b=255; break;                                  // but this is lt blue
      case 0x03: r=0; g=0; b=0; break;
    }
    if (colout_notvalidGCR && r==255 && g==255 && b==255) { r=160, b=90, g=90; }
@@ -438,7 +447,7 @@ void possibly_switch_pixel_monitor_at_sync()
    if ((m==HEADERI || m==POSTHEADER) && is_pixels_setting>=2 && found_track>=0 && (monitor_track==999 || found_track==monitor_track && found_sector==monitor_sector) && monitor_offset==0) {
       if (is_pixels_setting==2) is_colout=1;               // switch on for specific track/sec monitor
       if (is_pixels_setting==3) is_fluxout=1;              // switch on for specific track/sec monitor
-      fprintf(stderr,"Started pixel monitoring of this track sector\n");
+      dbgprintf(stderr,"Started pixel monitoring of this track sector\n");
    }
    else
    // switch it off
@@ -466,7 +475,7 @@ void possibly_start_pixel_monitor()
    if (is_pixels_setting>=2 && found_track>=0 && (monitor_track==999 || found_track==monitor_track && found_sector==monitor_sector) && monitor_offset==(dc+1)) {
       if (is_pixels_setting==2) is_colout=1;               // switch on for specific track/sec monitor
       if (is_pixels_setting==3) is_fluxout=1;              // switch on for specific track/sec monitor
-      fprintf(stderr,"Started pixel monitoring of this track sector from this offset %d\n",dc);
+      dbgprintf(stderr,"Started pixel monitoring of this track sector from this offset %d\n",dc);
    }
 }
 
@@ -481,11 +490,11 @@ void switchoffraw(int rew)
       raw_gotbad=0;
       save_raw=1;
       switchonraw(20);
-      fprintf(stderr,"going around again... ");
+      dbgprintf(stderr,"going around again... ");
    }
    else
    if (save_raw==2) {
-      fprintf(stderr,"stopping\n");
+      dbgprintf(stderr,"stopping\n");
       save_raw=-1;
       rawp=rawp-rew;
    }
@@ -495,7 +504,7 @@ void switchonraw(int rew)
 {
    if (save_raw==1) {                                      // only start recording if we didnt get it
       raw_gotbad=0;
-      fprintf(stderr,"rewinding\n");
+      dbgprintf(stderr,"rewinding\n");
       save_raw=2;                                          // first time header
       raw_starts=rawp-rew;
       // shuffle  - rewind only to start (just before, so we get the sync)
@@ -519,7 +528,7 @@ void write_datablock_to_file()
 
    if (found_sector>=0 && found_sector<=20) {
       keep_track=found_track;                              // just for raw
-      fprintf(stderr,"keep_track=%d\n",keep_track);
+      dbgprintf(stderr,"keep_track=%d\n",keep_track);
    }
    if ((ckm&0xFF)==databuf[256] && noncode==0) {
       //strcpy(suffix,".dat"); // original plain
@@ -534,45 +543,47 @@ void write_datablock_to_file()
       FILE *fp=fopen(filename,"rb");
       if (fp!=NULL) {                                      // exists
          // so it exists in a good form - just do nothing - we have the same result
-         fprintf(stderr,"block already saved as good with this ck16\n");
+         dbgprintf(stderr,"block already saved as good with this ck16\n");
          fclose(fp);
+         sprintf(filename,"");                             // lets flag it not to write
          // we'll just rewrite it so as not to touch the code far below
          // of course, it depends on the order whether the file below gets written first
       }
       else {
+         // dont try and display the -1 in p - just make it pffff
          if (noncode || adv_wrongbits>0 || (((char)databuf[256+1])&0xFFF)!=0x00 || (((char)databuf[256+2])&0xFFF)!=0x00) {
             sprintf(suffix,"x%04x-w%02d-p%02x%02x%s.dat",Fletcher16(databuf,256),
-                    adv_wrongbits,(((char)databuf[256+1])&0xFFF), (((char)databuf[256+2])&0xFFF)!=0x00, (noncode) ? "-nonc" : ""
+                    adv_wrongbits,(((char)databuf[256+1])&0xFF), (((char)databuf[256+2])&0xFF)!=0x00, (noncode) ? "-nonc" : ""
+                    //adv_wrongbits,(((char)databuf[256+1])&0xFFF), (((char)databuf[256+2])&0xFFF)!=0x00, (noncode) ? "-nonc" : ""
                     );
             int post=  (((char)databuf[256+1])&0xFF)<<8 || (((char)databuf[256+2])&0xFF);
             if (post>1) state=SM_GOODP;
             else if (post==1) state=SM_GOOD1;
             else state=SM_GOODN;                           // dont think wrongbits used (noncode)
          }
-         else {
-            // we are going to write a good one - so delete any sub-good ones
-            //#include <stdio.h>
-            //#include <dirent.h>
-            //#include <string.h>
+         else if (1) {                                     // actually - this is expensive
+            // ... we are going to write a good one - so delete any sub-good ones
+            //#include <stdio.h> //#include <dirent.h> //#include <string.h>
 
             struct dirent *de;                             // Pointer for directory entry
-            // opendir() returns a pointer of DIR type.
-            DIR *dr = opendir("data");
+            DIR *          dr = opendir("data");           // opendir() returns a pointer of DIR type.
 
             if (dr != NULL) {                              // opendir returns NULL if couldn't open directory
                char comparename[80];
-               //Ignoring data/track02sec03xf13a-w00-p0001.dat
-
-               sprintf(comparename,"track%02dsec%02d",found_track,found_sector,suffix);
+               char unlinkname[120];
+               sprintf(comparename,"track%02dsec%02d%s",found_track,found_sector,suffix);
+               comparename[12]='x';
+               // data/track57sec00x0cf7-w00-p0001.dat
+               //      0123456789012345678901234567,,,
                while ((de = readdir(dr)) != NULL) {
-                  //fprintf(stderr,"Checking %s\n", de->d_name);
-                  if (strncmp(comparename,de->d_name,12)==0 &&
+                  //dbgprintf(stderr,"Checking %s\n", de->d_name);
+                  if (strncmp(comparename,de->d_name,12+5)==0 &&
                       strncmp(".dat",&de->d_name[27],4)==0) {
                      // get rid of this one
-                     //fprintf(stderr,"Need to delete: %s\n", de->d_name);
-                     sprintf(comparename,"data/%s",de->d_name);
-                     fprintf(stderr,"Need to delete: %s\n", comparename);
-                     unlink(comparename);
+                     //dbgprintf(stderr,"Need to delete: %s\n", de->d_name);
+                     sprintf(unlinkname,"data/%s",de->d_name);
+                     dbgprintf2(stderr,"Need to del : %s\n", unlinkname);
+                     unlink(unlinkname);
                   }
                }
                closedir(dr);
@@ -594,12 +605,14 @@ void write_datablock_to_file()
       state=SM_BAD;
    }
 
-   fprintf(stderr,"Writing block data/track%02dsec%02d%s\n",found_track,found_sector,suffix);
-   sprintf(filename,"data/track%02dsec%02d%s",found_track,found_sector,suffix);
-   FILE *fp=fopen(filename,"wb");
-   if (fp!=NULL) {
-      for (int i=0; i<256; ++i) fprintf(fp,"%c",databuf[i]);
-      fclose(fp);
+   if (filename[0]!=0) {
+      dbgprintf2(stderr,"Writing block data/track%02dsec%02d%s\n",found_track,found_sector,suffix);
+      sprintf(filename,"data/track%02dsec%02d%s",found_track,found_sector,suffix);
+      FILE *fp=fopen(filename,"wb");
+      if (fp!=NULL) {
+         for (int i=0; i<256; ++i) fprintf(fp,"%c",databuf[i]);
+         fclose(fp);
+      }
    }
    if (sectormap_track>0) update_sectormap(found_track,found_sector,state);
 }
@@ -617,7 +630,7 @@ void addbit(int bit)
       if (bit==1) pixel(0,0,255);
    }
    if (bit<0) {
-      keep=0L; fprintf(stderr,"%s","?");
+      keep=0L; dbgprintf(stderr,"%s","?");
       if (m!=UNSYNC && m!=POSTHEADER) {
          if ((is_colout || (is_pureflux && is_fluxout && pxc<xsize-10)))
             pixel(255,0,0);
@@ -653,12 +666,12 @@ void addbit(int bit)
          else advanceline();
       }
       possibly_switch_pixel_monitor_at_sync();
-      fprintf(stderr,"\n[SYNC!*****]\n"); wraplen=0; bitc=1; m=SYNC;
+      dbgprintf(stderr,"\n[SYNC!*****]\n"); wraplen=0; bitc=1; m=SYNC;
    }
-   if (m!=DATA && m!=HEADERI && m!=POSTHEADER) fprintf(stderr,"%d",bit);  //for now, we are just translating them
+   if (m!=DATA && m!=HEADERI && m!=POSTHEADER) dbgprintf(stderr,"%d",bit);  //for now, we are just translating them
 
    // also, if waiting for data, and it takes too long -> invalidate everything!
-   if (m!=DATA && bitcount-lastset>5*50 && found_track>0) { fprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1; }
+   if (m!=DATA && bitcount-lastset>5*50 && found_track>0) { dbgprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1; }
 
    if (m==SYNC && bitc==10) {
       //
@@ -666,17 +679,17 @@ void addbit(int bit)
       //
       DECODEBYTE;
 
-      //if ((keep & 0xFF) == 0x52) { fprintf(stderr,"[HEADERINFO] "); m=HEADERI;       }
+      //if ((keep & 0xFF) == 0x52) { dbgprintf(stderr,"[HEADERINFO] "); m=HEADERI;       }
       if (decb==0x08) {
-         fprintf(stderr,"[HEADERINFO] "); m=HEADERI;    dc=0;    lastset=bitcount;
+         dbgprintf(stderr,"[HEADERINFO] "); m=HEADERI;    dc=0;    lastset=bitcount;
          // switchon raw
-         //else if ((keep & 0xFF ) == 0x55) { fprintf(stderr,"[HDATA] "); m=DATA; bitc=0; dc=0; }
+         //else if ((keep & 0xFF ) == 0x55) { dbgprintf(stderr,"[HDATA] "); m=DATA; bitc=0; dc=0; }
          if (is_colout || is_fluxout) writeoutrestofline();  // note- it would have already done two four pixels for the header byte
          if (monitor_offset<0 &&  is_pixels_setting>=2 && (monitor_track==999 || found_track!=monitor_track || found_sector!=monitor_sector)) {
             //if (is_pixels_setting==2) is_colout=1; // switch on for specific track/sec monitor
             if (is_pixels_setting==3) {
                is_fluxout=1;                               // just grab all from header byte
-               fprintf(stderr,"Started pixel monitoring of this track \n");
+               dbgprintf(stderr,"Started pixel monitoring of this track \n");
             }
          }
          // try this - assume we were close enough with timing to receive the header byte after a sync (sync easy with timing)
@@ -684,7 +697,7 @@ void addbit(int bit)
          //dotimingprofile(/*i,n*/);
       }
       else if (decb==0x07) {
-         fprintf(stderr,"[HDATA]\n"); m=DATA; bitc=0; dc=0;  lastset=bitcount; wraplen=0;
+         dbgprintf(stderr,"[HDATA]\n"); m=DATA; bitc=0; dc=0;  lastset=bitcount; wraplen=0;
          adv_wrongbits=0;
          // maybe not the best place
          if (save_raw==1 && found_sector==0 && found_track>0) switchonraw(20+20);  // start only at sec 0 // was 20
@@ -698,7 +711,7 @@ void addbit(int bit)
          if (is_pixels_setting==3) is_fluxout=0;           // switch off for track/sec monitor
          // invalidate everything!
          // only if it takes too long!
-         if (bitcount-lastset>5*50) { fprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1; }
+         if (bitcount-lastset>5*50) { dbgprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1; }
       }
       // not valid
    }
@@ -708,26 +721,26 @@ void addbit(int bit)
          DECODEBYTE;
          databuf[dc++]=decb;
          bitc=0;
-         //fprintf(stderr,"[%2X%2X=%02X]",(keep&0x3FC)>>5,keep&0x1F,decb); // old way
-         fprintf(stderr,"[%c%c=%02X]",xlate[(keep&0x3FC)>>5],xlate[keep&0x1F],decb); // try this new way wrong spot
-         if (dc%16==0) { fprintf(stderr,"\n"); wraplen=0; }
+         //dbgprintf(stderr,"[%2X%2X=%02X]",(keep&0x3FC)>>5,keep&0x1F,decb); // old way
+         dbgprintf(stderr,"[%c%c=%02X]",xlate[(keep&0x3FC)>>5],xlate[keep&0x1F],decb); // try this new way wrong spot
+         if (dc%16==0) { dbgprintf(stderr,"\n"); wraplen=0; }
 
          if (dc>20) /* way too many */ { m=UNSYNC; dc=0; } // dc so it never exceeds MAXBUF
          if (dc==8) {
             //
             // END OF HEADER BLOCK
             //
-            fprintf(stderr,"at end of HEADER!!!\n");
+            dbgprintf(stderr,"at end of HEADER!!!\n");
             printbucketedges();
-            fprintf(stderr,"\nHEADERID %02X CKSM %02X(%02X %s) SECTORx%02X( %2d ) TRACKx%02X( %2d ) ID %02X%02X END %02X%02X\n",
-                    databuf[0],
-                    databuf[1], (databuf[2]^databuf[3]^databuf[4]^databuf[5])&0xFF,
-                    (databuf[1]==((databuf[2]^databuf[3]^databuf[4]^databuf[5])&0xFF)) ? "OK  " : "BAD ",
-                    databuf[2], databuf[2],
-                    databuf[3], databuf[3],
-                    databuf[4], databuf[5],
-                    databuf[6], databuf[7]
-                    );
+            dbgprintf(stderr,"\nHEADERID %02X CKSM %02X(%02X %s) SECTORx%02X( %2d ) TRACKx%02X( %2d ) ID %02X%02X END %02X%02X\n",
+                      databuf[0],
+                      databuf[1], (databuf[2]^databuf[3]^databuf[4]^databuf[5])&0xFF,
+                      (databuf[1]==((databuf[2]^databuf[3]^databuf[4]^databuf[5])&0xFF)) ? "OK  " : "BAD ",
+                      databuf[2], databuf[2],
+                      databuf[3], databuf[3],
+                      databuf[4], databuf[5],
+                      databuf[6], databuf[7]
+                      );
             if ((databuf[1]==((databuf[2]^databuf[3]^databuf[4]^databuf[5])&0xFF))) { // hdr ckm good
                found_track=(int)databuf[3];
                found_sector=(int)databuf[2];
@@ -754,10 +767,10 @@ void addbit(int bit)
          // 0x07 256Data (two next block + 254 data) CKM 00 00
          databuf[dc++]=DECODEBYTE;
          bitc=0;
-         //fprintf(stderr,"[%2X%2X=%02X]",(keep&0x3FC)>>5,keep&0x1F,decb); // old way
-         fprintf(stderr,"[%c%c=%02X]",xlate[(keep&0x3FC)>>5],xlate[keep&0x1F],decb); // try this new way wrong spot
-         if (dc%16==0) { fprintf(stderr,"\n"); wraplen=0; }
-         //fprintf(stderr,"[%02X]",decb);
+         //dbgprintf(stderr,"[%2X%2X=%02X]",(keep&0x3FC)>>5,keep&0x1F,decb); // old way
+         dbgprintf(stderr,"[%c%c=%02X]",xlate[(keep&0x3FC)>>5],xlate[keep&0x1F],decb); // try this new way wrong spot
+         if (dc%16==0) { dbgprintf(stderr,"\n"); wraplen=0; }
+         //dbgprintf(stderr,"[%02X]",decb);
 
          if (dc>300) /* way too many */ { m=UNSYNC; dc=0; } // dc so it never exceeds MAXBUF
          if (dc==256+2+1) {
@@ -768,14 +781,14 @@ void addbit(int bit)
             ckm=0; noncode=0;
             for (int i=0; i<256; ++i) { ckm=ckm^databuf[i]; if (databuf[i]<0) noncode=1; } // calculate simple ckm
             if (databuf[256]<0) noncode=1;
-            fprintf(stderr,"\n  END OF BLOCK! ckm=%02X %s%s THIS t=%d s=%d NEXT t=%d s=%d post:%02x%02x wrongbits=%d\n"
-                    ,ckm&0xFF,((ckm&0xFF)==databuf[256]&&found_track>=0) ? "GOOD" : "***BAD!***"
-                    ,noncode ? " NONCODE DETECTED" : ""
-                    ,found_track,found_sector
-                    ,databuf[0],databuf[1]
-                    ,((char)databuf[256+1])&0xFFF,((char)databuf[256+2])&0xFFF
-                    ,adv_wrongbits
-                    );
+            dbgprintf(stderr,"\n  END OF BLOCK! ckm=%02X %s%s THIS t=%d s=%d NEXT t=%d s=%d post:%02x%02x wrongbits=%d\n"
+                      ,ckm&0xFF,((ckm&0xFF)==databuf[256]&&found_track>=0) ? "GOOD" : "***BAD!***"
+                      ,noncode ? " NONCODE DETECTED" : ""
+                      ,found_track,found_sector
+                      ,databuf[0],databuf[1]
+                      ,((char)databuf[256+1])&0xFFF,((char)databuf[256+2])&0xFFF
+                      ,adv_wrongbits
+                      );
             wraplen=0;                                     // for debug text out
             if (found_track>=0 && found_track<100) {
                write_datablock_to_file();
@@ -860,7 +873,7 @@ int main(int argc, char *argv[])
    //
    // Read args
    //
-   if (argc<2) { fprintf(stderr,"%s filename track [mode track sector [offset]]\n",argv[0]); exit(1); }
+   if (argc<2) { dbgprintf(stderr,"%s filename track [mode track sector [offset]]\n",argv[0]); exit(1); }
    rawfile=argv[1];
    if (argc>=3) { algmode=atoi(argv[2]); }
    rfifile=fopen(rawfile, "rb");
@@ -879,12 +892,12 @@ int main(int argc, char *argv[])
       if (is_pixels_setting==0) {
 
       }
-      fprintf(stderr,"is_pixels_setting=%d xsize=%d\n",is_pixels_setting,xsize);
+      dbgprintf(stderr,"is_pixels_setting=%d xsize=%d\n",is_pixels_setting,xsize);
       monitor_track=atoi(argv[4]);
       monitor_sector=atoi(argv[5]);
       if (argc>=7) {
          monitor_offset=atoi(argv[6]);
-         //fprintf(stderr,"Setting offset to %d\n",monitor_offset);
+         //dbgprintf(stderr,"Setting offset to %d\n",monitor_offset);
       }
       if (argc>=9) {
          MAXPIP=atoi(argv[7]);
@@ -908,7 +921,7 @@ int main(int argc, char *argv[])
    // Read track
    //
    nx=fread(rlebuff, 1, MAXFS, rfifile);
-   fprintf(stderr,"Read %d bytes from FILE %s\n",nx,rawfile);
+   dbgprintf(stderr,"Read %d bytes from FILE %s\n",nx,rawfile);
 
    //
    // Start processing
@@ -928,7 +941,7 @@ int main(int argc, char *argv[])
          lastc=c;
          s=1-s;
       }
-      fprintf(stderr,"Peaking done\n");
+      dbgprintf(stderr,"Peaking done\n");
       bitpipe_histogram();
    }
 
@@ -940,7 +953,7 @@ int main(int argc, char *argv[])
    int reversed=0;                                                                               // allow reverse read (hardcode)
    for (ix=reversed ? nx-1 : 0; (ix<nx)&&!reversed||reversed&&(ix>=0); reversed ? ix-- : ix++) { // normal
       if (save_raw) if (rawp==MAXRAW) break;                                                     // for now
-      if (save_raw<0) { fprintf(stderr,"stopping reading early\n"); break; }                     // for now
+      if (save_raw<0) { dbgprintf(stderr,"stopping reading early\n"); break; }                   // for now
 
       // Extract next RLE value
       c=rlebuff[ix];
@@ -958,22 +971,22 @@ int main(int argc, char *argv[])
          int cb;
          if (algmode==1) {                                 //old
             td="-";
-            if (ct<7) { td="."; /* ignore */ fprintf(stderr,"."); }
-            if (ct>=7 && ct<=14) { td="_"; addbit(-1); fprintf(stderr,"_%d ",ct); }
-            //if (ct>=7 && ct<=12) { td="_"; addbit(-1); fprintf(stderr,"_%d ",ct); }
+            if (ct<7) { td="."; /* ignore */ dbgprintf(stderr,"."); }
+            if (ct>=7 && ct<=14) { td="_"; addbit(-1); dbgprintf(stderr,"_%d ",ct); }
+            //if (ct>=7 && ct<=12) { td="_"; addbit(-1); dbgprintf(stderr,"_%d ",ct); }
             if (ct>=13 && ct<=26) { td="1"; addbit(1); }
             if (ct>=30 && ct<=42) { td="01"; addbit(0); addbit(1); }
             if (ct>=47 && ct<=55) { td="001"; addbit(0); addbit(0); addbit(1); }
-            if (ct>55) { td=">>>>"; addbit(-1); fprintf(stderr,">%d ",ct); }
+            if (ct>55) { td=">>>>"; addbit(-1); dbgprintf(stderr,">%d ",ct); }
          }
          else if (algmode==0) {                            //old
             td="-";
-            if (ct<7) { td="."; /* ignore */ fprintf(stderr,"."); }
-            if (ct>=7 && ct<14) { td="_"; addbit(-1); fprintf(stderr,"_%d ",ct); }
+            if (ct<7) { td="."; /* ignore */ dbgprintf(stderr,"."); }
+            if (ct>=7 && ct<14) { td="_"; addbit(-1); dbgprintf(stderr,"_%d ",ct); }
             if (ct>=14 && ct<32) { td="1"; addbit(1); }
             if (ct>=32 && ct<49) { td="01"; addbit(0); addbit(1); }
             if (ct>=50 && ct<=60) { td="001"; addbit(0); addbit(0); addbit(1); }
-            if (ct>60) { td=">>>>"; addbit(-1); fprintf(stderr,">%d ",ct); }
+            if (ct>60) { td=">>>>"; addbit(-1); dbgprintf(stderr,">%d ",ct); }
          }
          else if (algmode>100) {                           // its a frequency factor
             //
@@ -981,8 +994,8 @@ int main(int argc, char *argv[])
             //
             td="-";
             float sc=((float)algmode)/1000.0;
-            if (ct<5.0*sc) { noteflux(ct,-1); td="."; /* ignore */ fprintf(stderr,"."); }
-            else if (ct<8.0*sc) { noteflux(ct,0); td="_"; addbit(-1); fprintf(stderr,"_%d ",ct); }
+            if (ct<5.0*sc) { noteflux(ct,-1); td="."; /* ignore */ dbgprintf(stderr,"."); }
+            else if (ct<8.0*sc) { noteflux(ct,0); td="_"; addbit(-1); dbgprintf(stderr,"_%d ",ct); }
             else if (ct<30.0*sc) { noteflux(ct,1); td="1"; addbit(1); }
             else if (ct<(47.0)*sc) { noteflux(ct,2); td="01"; addbit(0); addbit(1); }
             else if (ct<=80.0*sc) { noteflux(ct,3); td="001"; addbit(0); addbit(0); addbit(1); }
@@ -999,10 +1012,10 @@ int main(int argc, char *argv[])
                   addbit(0); addbit(0); addbit(0); addbit(1); // adding this!!
                   addbit(-1);
                   colout_notvalidGCR=0;
-                  fprintf(stderr,">%d ",ct);                                   // act like two zeros at least
+                  dbgprintf(stderr,">%d ",ct);                                   // act like two zeros at least
                }
-               else {                                                          // old way
-                  addbit(0); addbit(0); addbit(-1); fprintf(stderr,">%d ",ct); // act like two zeros at least
+               else {                                                            // old way
+                  addbit(0); addbit(0); addbit(-1); dbgprintf(stderr,">%d ",ct); // act like two zeros at least
                   if (is_colout) for (int i=0; i<ct/40.0; ++i) {
                         int r=160,g=90,b=90;
                         pixel(r,g,b);
@@ -1013,8 +1026,8 @@ int main(int argc, char *argv[])
          else {                                            // say 2
             // Dynamic Mode
             td="-";
-            if (ct<       p1*0.5) { noteflux(ct,-1); td="."; /* ignore */ fprintf(stderr,"."); }
-            else if (ct<       p1*(0.75-0.05*adv_timing)+2*0) { noteflux(ct,0); td="_"; addbit(-1); fprintf(stderr,"_%d ",ct); } //55 good
+            if (ct<       p1*0.5) { noteflux(ct,-1); td="."; /* ignore */ dbgprintf(stderr,"."); }
+            else if (ct<       p1*(0.75-0.05*adv_timing)+2*0) { noteflux(ct,0); td="_"; addbit(-1); dbgprintf(stderr,"_%d ",ct); } //55 good
             else if (ct<p2*0.5+p1*(0.50+0.05*adv_timing)) { noteflux(ct,1); td="1"; addbit(1); }
             else if (ct<p2    +p1*(0.50+0.05*adv_timing)-3*0) { noteflux(ct,2); td="01"; addbit(0); addbit(1); }                 // changing to 7 red SOME things better 0.65 good 0.60 0.611 switches
             else if (ct<p2    +p1*2.0) { noteflux(ct,3); td="001"; addbit(0); addbit(0); addbit(1); }
@@ -1029,16 +1042,16 @@ int main(int argc, char *argv[])
                addbit(0); addbit(0); addbit(0); addbit(1); // adding this!!
                addbit(-1);
                colout_notvalidGCR=1;
-               fprintf(stderr,">%d(added:%d) ",ct,ab);     // act like two zeros at least
+               dbgprintf(stderr,">%d(added:%d) ",ct,ab);   // act like two zeros at least
             }
          }
       }
 
-      wraplen++; if (wraplen%384==0) fprintf(stderr,"\n");  // text debug
+      wraplen++; if (wraplen%384==0) dbgprintf(stderr,"\n");  // text debug
       lastc=c;
-      s=1-s;                                                // Switch states
+      s=1-s;                                                  // Switch states
    }
-   //fprintf(stderr,"converted %d\n",rlen);
+   //dbgprintf(stderr,"converted %d\n",rlen);
    // finalise picture
    if (is_colout || is_fluxout) writeoutrestofline();
    if (is_colout || is_fluxout) { printf(" "); writeoutrestofline(); } // and just a blank line - space in front for sorting
@@ -1056,9 +1069,9 @@ int main(int argc, char *argv[])
          for (int i=0; i<rawp; ++i) fprintf(fp,"%c",rawc[i]);
          fclose(fp);
       }
-      else fprintf(stderr,"write to raw track failed\n");
+      else dbgprintf(stderr,"write to raw track failed\n");
    }
-   fprintf(stderr,"\nFinished r14 run ix=%d nx=%d\n",ix,nx);
+   dbgprintf(stderr,"\nFinished r14 run ix=%d nx=%d\n",ix,nx);
    if (sectormap_track>0) {
       save_sectormap();
       exit(is_good_sectormap()!=1);                        //reverse it

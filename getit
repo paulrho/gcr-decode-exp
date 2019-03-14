@@ -13,7 +13,7 @@ TAG=`grep "Status:" work/fm.out | sed "s/Status: //"`
 cat work/fm.out >> output/o${DISK}
 D64=d64/data${DISK}-201902xx-auto-$TAG.d64
 cat data/track*dat >$D64
-c1541 $D64 -dir > ${DISK}-dir.txt
+c1541 $D64 -dir > ${DISK}-dir.txt 2>&1
 
 cat work/tmpe.d64 > d64/data${DISK}-201902xx-auto-$TAG-errblock.d64
 
@@ -22,9 +22,11 @@ cd extract/e${DISK} || exit 1
 cp -p ../../1.png ${DISK}.png 2>/dev/null
 
 mv ../../${DISK}-dir.txt .
-cat ${DISK}-dir.txt 
+echo "--------------------------------"          | tee -a ../../output/o${DISK}
+cat ${DISK}-dir.txt | egrep -v "archdep_unix.c:" | tee -a ../../output/o${DISK}
+echo "--------------------------------"          | tee -a ../../output/o${DISK}
 
-c1541 ../../$D64 -extract >>../../output/o${DISK} 2>&1
+c1541 ../../$D64 -extract                               >>../../output/o${DISK} 2>&1
 
 if [ 1 -eq 0 ]
 then
