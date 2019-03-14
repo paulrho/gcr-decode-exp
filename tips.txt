@@ -1,0 +1,6 @@
+feh
+xxd -c32
+xxd -c256
+dhex
+dhex $1 $2
+less -r # this keeps the \r to what it really does
