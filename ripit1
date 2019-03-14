@@ -151,6 +151,9 @@ do
   ADV_TIMING=0
   ./r14 $LIST $DETECT_TYPE $OUTPUT_TYPE $TRACK_MONITOR $SECTOR_MONITOR $MONITOR_OFFSET $ADV_PIPELEN $ADV_TIMING $SAVE_RAW $TRACK 1>>/var/tmp/1 2>>/var/tmp/2
       STATUS=$?
+   LASTLINE=`tail -1 /var/tmp/2`
+   echo -n "$LASTLINE"
+   echo -n $'\r'
       echo "DYN XXX Track $TRACK $STATUS" >>3
       KEEPTRYING=1
       if [ $STATUS -eq 0 ]
@@ -212,6 +215,9 @@ do
     ADV_TIMING=0
     ./r14 $LIST $DETECT_TYPE $OUTPUT_TYPE $TRACK_MONITOR $SECTOR_MONITOR $MONITOR_OFFSET $ADV_PIPELEN $ADV_TIMING $SAVE_RAW $TRACK 1>>/var/tmp/1 2>>/var/tmp/2
       STATUS=$?
+   LASTLINE=`tail -1 /var/tmp/2`
+   echo -n "$LASTLINE"
+   echo -n $'\r'
       echo "TIM XXX Track $TRACK $STATUS" >>3
       KEEPTRYING=1
       if [ $STATUS -eq 0 ]
@@ -234,6 +240,9 @@ do
         ADV_TIMING=0
         ./r14 $LIST $DETECT_TYPE $OUTPUT_TYPE $TRACK_MONITOR $SECTOR_MONITOR $MONITOR_OFFSET $ADV_PIPELEN $ADV_TIMING $SAVE_RAW $TRACK 1>>/var/tmp/1 2>>/var/tmp/2
         STATUS=$?
+   LASTLINE=`tail -1 /var/tmp/2`
+   echo -n "$LASTLINE"
+   echo -n $'\r'
         echo "ALL $F Track $TRACK $STATUS" >>3
         KEEPTRYING=1
         if [ $STATUS -eq 0 ]
@@ -304,8 +313,16 @@ do
 	# SORT #
   	sort /var/tmp/1 > /var/tmp/1.sort ; cat /var/tmp/1.sort >/var/tmp/1
   fi
-  cat /var/tmp/1 >>/var/tmp/1.col
-  cat /var/tmp/2 >>/var/tmp/all2.out
+
+  # accumulate
+  if [ 1 -eq 0 ]
+  then
+    cat /var/tmp/1 >>/var/tmp/1.col
+    cat /var/tmp/2 >>/var/tmp/all2.out
+  fi
+
+  if [ 1 -eq 0 ]
+  then
   egrep -a "CKS|END OF" /var/tmp/2 | awk '
   /HEADER.*OK / { if(h)print"";printf $0 ;h=1 } 
   /END OF/ { if (h) print;h=0 }
@@ -364,6 +381,9 @@ do
   #echo -n "$LIST Parm " $2 " "
   echo -n "GOOD:  `egrep "^  END OF" /var/tmp/2 |grep GOOD | wc -l` "
   echo "BAD:   `egrep "^  END OF" /var/tmp/2 |grep BAD | wc -l` "
+  else
+    echo "" # to move of same line
+  fi # do awk summary
 
   fi # only 1-35 (0-34 s?)
 done

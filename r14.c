@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <malloc.h>
+#include <dirent.h>
+#include <unistd.h>
 
 // forward declare
 void showflux();
@@ -76,7 +78,7 @@ int sectors_per_track(int track)
    else if (track>=18 && track <25) return 19;
    else if (track>=25 && track <31) return 18;
    else if (track>=31 && track <=35) return 17;
-   else if (track>=1+35 && track<18+35) return 21;                    // 00..20
+   else if (track>=1+35 && track<18+35) return 21;         // 00..20
    else if (track>=18+35 && track <25+35) return 19;
    else if (track>=25+35 && track <31+35) return 18;
    else if (track>=31+35 && track <=35+35) return 17;
@@ -120,6 +122,11 @@ int save_sectormap()
    for (int i=0; i<TOPSEC; ++i) fprintf(fp,"%c",sectormap[i]);
    fclose(fp);
    fprintf(stderr,"track %02d bitmap_c: ",sectormap_track);
+   for (int i=0; i<TOPSEC; ++i) fprintf(stderr,"%c",i<sectors_per_track(sectormap_track) ? sectormap_char[sectormap[i]] : ' ');
+   fprintf(stderr,"\n");
+
+   // last line
+   fprintf(stderr,"TRACK %2d ",sectormap_track);
    for (int i=0; i<TOPSEC; ++i) fprintf(stderr,"%c",i<sectors_per_track(sectormap_track) ? sectormap_char[sectormap[i]] : ' ');
    fprintf(stderr,"\n");
    return 0;
@@ -541,6 +548,35 @@ void write_datablock_to_file()
             if (post>1) state=SM_GOODP;
             else if (post==1) state=SM_GOOD1;
             else state=SM_GOODN;                           // dont think wrongbits used (noncode)
+         }
+         else {
+            // we are going to write a good one - so delete any sub-good ones
+            //#include <stdio.h>
+            //#include <dirent.h>
+            //#include <string.h>
+
+            struct dirent *de;                             // Pointer for directory entry
+            // opendir() returns a pointer of DIR type.
+            DIR *dr = opendir("data");
+
+            if (dr != NULL) {                              // opendir returns NULL if couldn't open directory
+               char comparename[80];
+               //Ignoring data/track02sec03xf13a-w00-p0001.dat
+
+               sprintf(comparename,"track%02dsec%02d",found_track,found_sector,suffix);
+               while ((de = readdir(dr)) != NULL) {
+                  //fprintf(stderr,"Checking %s\n", de->d_name);
+                  if (strncmp(comparename,de->d_name,12)==0 &&
+                      strncmp(".dat",&de->d_name[27],4)==0) {
+                     // get rid of this one
+                     //fprintf(stderr,"Need to delete: %s\n", de->d_name);
+                     sprintf(comparename,"data/%s",de->d_name);
+                     fprintf(stderr,"Need to delete: %s\n", comparename);
+                     unlink(comparename);
+                  }
+               }
+               closedir(dr);
+            }
          }
          //else
          //sprintf(suffix,"-%04x.dat",Fletcher16(databuf,256));

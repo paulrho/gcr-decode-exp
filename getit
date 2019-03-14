@@ -15,18 +15,16 @@ D64=d64/data${DISK}-201902xx-auto-$TAG.d64
 cat data/track*dat >$D64
 c1541 $D64 -dir > ${DISK}-dir.txt
 
+cat work/tmpe.d64 > d64/data${DISK}-201902xx-auto-$TAG-errblock.d64
+
 mkdir -p extract/e${DISK} 2>/dev/null
-cd extract/e${DISK}
-if [ $? -ne 0 ]
-then
-	exit 1
-fi
-cp -p ../../1.png ${DISK}.png
+cd extract/e${DISK} || exit 1
+cp -p ../../1.png ${DISK}.png 2>/dev/null
 
 mv ../../${DISK}-dir.txt .
 cat ${DISK}-dir.txt 
 
-c1541 ../../$D64 -extract
+c1541 ../../$D64 -extract >>../../output/o${DISK} 2>&1
 
 if [ 1 -eq 0 ]
 then
