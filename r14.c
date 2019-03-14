@@ -554,7 +554,7 @@ void write_datablock_to_file()
          if (noncode || adv_wrongbits>0 || (((char)databuf[256+1])&0xFFF)!=0x00 || (((char)databuf[256+2])&0xFFF)!=0x00) {
             sprintf(suffix,"x%04x-w%02d-p%02x%02x%s.dat",Fletcher16(databuf,256),
                     adv_wrongbits,(((char)databuf[256+1])&0xFF), (((char)databuf[256+2])&0xFF)!=0x00, (noncode) ? "-nonc" : ""
-                    //adv_wrongbits,(((char)databuf[256+1])&0xFFF), (((char)databuf[256+2])&0xFFF)!=0x00, (noncode) ? "-nonc" : ""
+                                                           //adv_wrongbits,(((char)databuf[256+1])&0xFFF), (((char)databuf[256+2])&0xFFF)!=0x00, (noncode) ? "-nonc" : ""
                     );
             int post=  (((char)databuf[256+1])&0xFF)<<8 || (((char)databuf[256+2])&0xFF);
             if (post>1) state=SM_GOODP;
