@@ -1,0 +1,131 @@
+#!/bin/sh
+
+if [ 0 -eq 1 ]
+then
+for FILE in `/bin/ls -1 data`
+do 
+
+  echo $FILE
+
+done
+fi
+
+if [ $# -eq 1 ]
+then
+	 rm data/*missing*
+	 rm data/*ckm.dat
+	 rm data/*bad.dat
+	 # undoing the ignores is a bit trickier!
+	 # just ignore the ignores for now
+fi
+
+echo -n "" >/var/tmp/errorblock
+#for (( c=1; c<=5; c++ ))
+#do
+VAL="good"
+for TRACK in 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35  \
+	             36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 69 70 
+do
+	if [ $TRACK -eq 36 ]
+	then
+	  FILE=`/bin/ls -1 data/track${TRACK}sec*.dat 2>/dev/null`
+	  if [ "$FILE" == "" ]
+	  then
+		  # no track 36 - assume just a normal 1-35 track disk
+		  break
+	  fi
+	fi
+
+	for SECTOR in 00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21 22
+	do
+		if [ $TRACK -ge  1 -a $TRACK -le 17 -a $SECTOR -lt 21 \
+	 	-o   $TRACK -ge 18 -a $TRACK -le 24 -a $SECTOR -lt 19 \
+	 	-o   $TRACK -ge 25 -a $TRACK -le 30 -a $SECTOR -lt 18 \
+	 	-o   $TRACK -ge 31 -a $TRACK -le 35 -a $SECTOR -lt 17 \
+		-o   $TRACK -ge 36 -a $TRACK -le 52 -a $SECTOR -lt 21 \
+	 	-o   $TRACK -ge 53 -a $TRACK -le 59 -a $SECTOR -lt 19 \
+	 	-o   $TRACK -ge 60 -a $TRACK -le 65 -a $SECTOR -lt 18 \
+	 	-o   $TRACK -ge 66 -a $TRACK -le 70 -a $SECTOR -lt 17 \
+			]
+		then
+			FILE=`/bin/ls -1 data/track${TRACK}sec${SECTOR}*.dat 2>/dev/null`
+			if [ `echo "$FILE" | wc -l` -gt 1 ]
+			then
+				echo "Duplicate block Track $TRACK Sector $SECTOR"
+				# mv away others
+				TOPNAME="`echo \"$FILE\" | head -1`"
+				echo "  keeping  $TOPNAME"
+				tnsize=`echo $TOPNAME | wc -c`
+				for F in `echo "$FILE" | tail -n +2`
+				do
+					fsize=`echo "$F" | wc -c`
+					if [ $fsize -gt $tnsize ]
+					then
+						#echo "  Silently Ignoring $F"
+						# silently ignore lesser ones # really should limit to same ck16
+						echo "  Ignoring $F"
+						mv $F $F.ignore
+					else
+						echo "  Ignoring $F"
+						mv $F $F.ignore
+					fi
+				done
+			fi
+		        if [ "$FILE" == "" ]  # allow manually copied ones too
+			then 
+				FILE=`/bin/ls -1 data/track${TRACK}sec${SECTOR}*.ckm 2>/dev/null`
+				if [ "$FILE" == "" ]  # allow manually copied ones too
+				then 
+					echo "Missing $TRACK $SECTOR"
+					# creating missing
+					FILE=`/bin/ls -1 data/track${TRACK}sec${SECTOR}*.bad 2>/dev/null`
+					if [ "$FILE" == "" ]  # allow manually copied ones too
+					then 
+						echo "  completely missing, creating zero block"
+						dd if=/dev/zero bs=256 count=1 of=data/track${TRACK}sec${SECTOR}-missing.dat 2>/dev/null
+						VAL="bad"
+						echo -n $'\x02' >>/var/tmp/errorblock # error 20 - header block not found
+					else
+						for F in $FILE
+						do
+							echo "  copying first bad file to dat"
+							cp -p $F $F.dat
+							VAL="bad"
+							echo -n $'\x05' >>/var/tmp/errorblock # error 23 - data ckm error
+							break
+						done
+					fi
+				else
+					echo "CK $TRACK $SECTOR"
+					# creating missing
+					##dd if=/dev/zero bs=256 count=1 of=data/track${TRACK}sec${SECTOR}-missing.dat
+					for F in $FILE
+					do
+						echo "  copying first ckm file to dat"
+						cp -p $F $F.dat
+						if [ $VAL != "bad" ]
+						then
+							VAL="ckm"
+						fi
+						echo -n $'\x05' >>/var/tmp/errorblock # error 23 - data ckm error
+						break
+					done
+				fi
+			else
+				# all good
+				echo -n $'\x01' >>/var/tmp/errorblock
+
+			fi
+		fi
+	done
+done
+echo -n "Blocks "
+/bin/ls -1 data/track*.dat | wc -l
+mkdir work 2>/dev/null
+cat data/track*dat >work/tmp.d64
+ls -l work/tmp.d64
+# create an error block version
+cp -p work/tmp.d64 work/tmpe.d64
+cat /var/tmp/errorblock >> work/tmpe.d64 
+ls -l work/tmpe.d64
+echo "Status: $VAL"

@@ -1,0 +1,39 @@
+#!/bin/sh
+# must install gawk
+# take a rfi disk and split it into pure binary track data
+LANG=""; export LANG
+awk -F "XX" '
+BEGIN { RS="{track:" ; ORS=""; n=100; }
+{ 
+  n++;
+  if (n<102) next;
+
+  v=substr($0,1,30);
+  sub(",rpm.*","",v); sub(",","",v); sub(":","",v);
+  #print v
+  sub("[^}]*}","");
+  track=v
+  sub("side.*","",track);
+  side=v
+  sub(".*side","",side);
+  ##print >> "split/out"n"-track"v".raw"
+  #print >> "split/out000-track"v".raw"
+  filename=sprintf("split/out%03d-track%02dside%d.raw",0,track,side);
+  # append a break after
+  ch2=sprintf("%c%c",0xFF,0x00);
+  for (i=0; i<100; ++i) {
+    print ch2 >> filename
+  }
+  print >> filename
+  ll=length($0); if (111 && ll%2==1) { 
+    #/ get the level right (if odd - add one char to make even
+    ch2=sprintf("%c",0xFF);
+    print ch2 >> filename
+  }
+  # append a break after
+  ch2=sprintf("%c%c",0xFF,0x00);
+  for (i=0; i<100; ++i) {
+    print ch2 >> filename
+  }
+}' $1
+
