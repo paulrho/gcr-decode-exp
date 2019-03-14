@@ -12,6 +12,7 @@ then
 	exit 1
 fi
 
+mkdir work 2>/dev/null
 #mkdir /var/tmp 2>/dev/null
 >/var/tmp/1.col
 >/var/tmp/all2.out
@@ -85,7 +86,7 @@ done
 #for LIST in `/bin/ls -1 split/out???-track${3}side0.raw` # for x200
 #for LIST in `/bin/ls -1 split/out???-track*[0246813579]side0.raw`
 
-  >3
+  >work/3
 
 for LIST in `/bin/ls -1 split/out???-track${PTRACK}side${PSIDE}.raw` # for x200
 do   
@@ -133,7 +134,7 @@ do
     if [ $SIDE -eq 1 ]
     then
       TRACK=`expr $TRACK + 35`
-      echo "$TRACK" >>3
+      echo "$TRACK" >>work/3
     fi
   #### only do single for moment?
   if [ $PHYSTRACK -le 35 ]
@@ -154,7 +155,7 @@ do
    LASTLINE=`tail -1 /var/tmp/2`
    echo -n "$LASTLINE"
    echo -n $'\r'
-      echo "DYN XXX Track $TRACK $STATUS" >>3
+      echo "DYN XXX Track $TRACK $STATUS" >>work/3
       KEEPTRYING=1
       if [ $STATUS -eq 0 ]
       then
@@ -164,53 +165,8 @@ do
 
   if [ $TRY_TIMED -eq 1 -a $KEEPTRYING -eq 1 ]
   then
-    ###
-    #for F in 600 650 700 750 800 850 900 950 1000 1050 1100 1150 1200 1250 1300 1350
-    #for F in  950 1000 1050 1100 1150 1200 1250 1300
-
-    #for F in  1000 1050 1100 1150 1200 
-    #for F in  950 1000 1050 1100 1150 1200 1250
-    #for F in  1050 # 1-29
-    #  1-17 1.2307 13  1050
-    # 18-24 1.1428 14  1050
-    # 25-30 1.0666 15
-    # 31-15 1.0000 16
-    #1050*1.2307
-    #1292.2350
-    #1292/1.2307
-    #1049.80905175916145283172
-    #1292/1.1428
-    #1130.55652782639131956597
-    #1292/1.066
-    #1212.00750469043151969981
-    #1292/1
-    #1292.00000000000000000000
-
-
-    if [ $PHYSTRACK -ge 0 -a $PHYSTRACK -le 17 ]
-    then
-	   # echo "SPEED 3"
-	    F=1050; F=1000
-    fi
-    if [ $PHYSTRACK -ge 18 -a $PHYSTRACK -le 24 ]
-    then
-	    #echo "SPEED 2"
-	    F=1130 ; F=1080
-    fi
-    if [ $PHYSTRACK -ge 25 -a $PHYSTRACK -le 30 ]
-    then
-	    #echo "SPEED 1"
-	    F=1210 ; F=1160
-    fi
-    if [ $PHYSTRACK -ge 31 -a $PHYSTRACK -le 50 ]
-    then
-	    #echo "SPEED 0"
-	    F=1290 ; F=1240
-    fi
-    #for F in  1150 # 20-35
-    #do
-    #debug#echo -n "track $TRACK speed $F "
-    DETECT_TYPE=$F
+    ###DETECT_TYPE=$F
+    DETECT_TYPE=3 # do within prog now
     ADV_PIPELEN=3000
     ADV_TIMING=0
     ./r14 $LIST $DETECT_TYPE $OUTPUT_TYPE $TRACK_MONITOR $SECTOR_MONITOR $MONITOR_OFFSET $ADV_PIPELEN $ADV_TIMING $SAVE_RAW $TRACK 1>>/var/tmp/1 2>>/var/tmp/2
@@ -218,7 +174,7 @@ do
    LASTLINE=`tail -1 /var/tmp/2`
    echo -n "$LASTLINE"
    echo -n $'\r'
-      echo "TIM XXX Track $TRACK $STATUS" >>3
+      echo "TIM XXX Track $TRACK $STATUS" >>work/3
       KEEPTRYING=1
       if [ $STATUS -eq 0 ]
       then
@@ -231,7 +187,7 @@ do
   if [ $TRY_ALLSORTS -eq 1 ]
   then
     #for F in 800 820 840 860 880 870 900 920 940 960 980 1000 1020 1040 1044 1060 1080 1100 1120 1140 1160 1180
-    for F in 900 820 840 860 880 870 800 920 940 960 980 1000 1020 1040 1044 1060 1080 1100 1120 1140 1160 1180
+    for F in 900 820 840 860 880 870 800 920 940 960 980 1000 1020 1040 1044 1060 1080 1100 1120 1140 1160 1180 700
     do
       if [ $KEEPTRYING -eq 1 ]
       then
@@ -243,7 +199,7 @@ do
    LASTLINE=`tail -1 /var/tmp/2`
    echo -n "$LASTLINE"
    echo -n $'\r'
-        echo "ALL $F Track $TRACK $STATUS" >>3
+        echo "ALL $F Track $TRACK $STATUS" >>work/3
         KEEPTRYING=1
         if [ $STATUS -eq 0 ]
         then
