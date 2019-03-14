@@ -1,2 +1,2 @@
 # gcr-decode-exp
-GCR decoding experiment - works of rfi files
+GCR decoding experiment - works off rfi files
