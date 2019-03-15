@@ -1,0 +1,14 @@
+#!/bin/sh
+
+./r15 -scan 2>/dev/null
+
+echo -n "Blocks "
+/bin/ls -1 data/track*.dat | wc -l
+mkdir work 2>/dev/null
+cat data/track*dat >work/tmp.d64
+ls -l work/tmp.d64
+# create an error block version
+cp -p work/tmp.d64 work/tmpe.d64
+cat /var/tmp/errorblock >> work/tmpe.d64 
+ls -l work/tmpe.d64
+echo "Status: $VAL"

@@ -37,9 +37,9 @@ int sectors_per_track(int track)
  *         /GOOD.*post:0000/       { t[$12]=1; v[$12][$9]=40; }                                '.' = good post=0
  **/
 
-//     ?           .        :         P         N         C       X       H             B              b
-enum { SM_MISSING, SM_GOOD, SM_GOOD1, SM_GOODP, SM_GOODN, SM_CKM, SM_BAD, SM_HEADER_OK, SM_HEADER_ODD, SM_HEADER_BAD };
-char *sectormap_char="?.:PNCXHBb";
+//     ?           .        D            :         P         N         C       X       H             B              b
+enum { SM_MISSING, SM_GOOD, SM_GOOD_DUP, SM_GOOD1, SM_GOODP, SM_GOODN, SM_CKM, SM_BAD, SM_HEADER_OK, SM_HEADER_ODD, SM_HEADER_BAD };
+char *sectormap_char="?.D:PNCXHBb";
 void init_sectormap()
 {
    for (int i=0; i<TOPSEC; ++i) sectormap[i]=SM_MISSING;

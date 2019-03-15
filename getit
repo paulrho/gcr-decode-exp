@@ -8,7 +8,7 @@ DISK="$1"
 ####rsync --progress -v -a pi@192.168.99.8:/home/pi/pub/floppy/bbc-fdc/tools/out/disk${DISK}*-*.rfi  ../out/
 #scp -rp pi@192.168.99.3:/home/pi/pub/floppy/bbc-fdc/tools/out/disk${DISK}*-*.rfi ../out/
 ./ripit1 "??" "?" ../out/disk${DISK}*-*.rfi | tee -a  output/o${DISK}
-./fm41fix | tee work/fm.out
+./fm41fix2 | tee work/fm.out
 TAG=`grep "Status:" work/fm.out | sed "s/Status: //"`
 cat work/fm.out >> output/o${DISK}
 D64=d64/data${DISK}-201902xx-auto-$TAG.d64

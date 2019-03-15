@@ -55,9 +55,10 @@ int      rawbitc=0;
 int      raw_gotbad=0;                                     // if you get a bad one - go round again
 
 #include "tracker.c"
- 
+#include "blocks2d64.c"
 
-#define MAXBUF        1000
+
+#define MAXBUF    1000
 enum { UNSYNC,SYNC,HEADERI,POSTHEADER,DATA,GAP } m=UNSYNC; // marks it is NOW in this mode
 int      bitc=0;
 int      dc=0;
@@ -272,15 +273,16 @@ void addbit(int bit)
 // this is for debuging via image output only
 
 int setting_f=0;
-void set_settings(int track) {
-    if (track >=0 && track<=17) setting_f=1000; // speed 3
-    if (track >=18 && track<=24) setting_f=1080; // speed 2
-    if (track >=25 && track<=30) setting_f=1160; // speed 1
-    if (track >=31 && track<=35) setting_f=1240; // speed 0
-    if (track >=1+35 && track<=17+35) setting_f=1000; // speed 3
-    if (track >=18+35 && track<=24+35) setting_f=1080; // speed 2
-    if (track >=25+35 && track<=30+35) setting_f=1160; // speed 1
-    if (track >=31+35 && track<=35+35) setting_f=1240; // speed 0
+void set_settings(int track)
+{
+   if (track >=0 && track<=17) setting_f=1000;             // speed 3
+   if (track >=18 && track<=24) setting_f=1080;            // speed 2
+   if (track >=25 && track<=30) setting_f=1160;            // speed 1
+   if (track >=31 && track<=35) setting_f=1240;            // speed 0
+   if (track >=1+35 && track<=17+35) setting_f=1000;       // speed 3
+   if (track >=18+35 && track<=24+35) setting_f=1080;      // speed 2
+   if (track >=25+35 && track<=30+35) setting_f=1160;      // speed 1
+   if (track >=31+35 && track<=35+35) setting_f=1240;      // speed 0
 }
 
 int main(int argc, char *argv[])
@@ -301,8 +303,12 @@ int main(int argc, char *argv[])
    //
    // Read args
    //
-   if (argc<2) { dbgprintf(stderr,"%s filename track [mode track sector [offset]]\n",argv[0]); exit(1); }
+   if (argc<2) { dbgprintf(stderr,"%s [filename|-scan] track [mode track sector [offset]]\n",argv[0]); exit(1); }
    rawfile=argv[1];
+   if (strcmp(rawfile,"-scan")==0) {
+      scanblocks();
+      exit(0);
+   }
    if (argc>=3) { algmode=atoi(argv[2]); }
    rfifile=fopen(rawfile, "rb");
    if (argc>=6) {

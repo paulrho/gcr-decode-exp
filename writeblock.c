@@ -10,6 +10,7 @@ void write_datablock_to_file()
       keep_track=found_track;                              // just for raw
       dbgprintf(stderr,"keep_track=%d\n",keep_track);
    }
+   sprintf(filename,"data/track%02dsec%02d%s",found_track,found_sector,suffix);
    if ((ckm&0xFF)==databuf[256] && noncode==0) {
       //strcpy(suffix,".dat"); // original plain
       //sprintf(suffix,"-%03d.dat",badcount++); /// just temp
@@ -19,7 +20,6 @@ void write_datablock_to_file()
       // check if file already exists
       state=SM_GOOD;
       sprintf(suffix,"-%04x.dat",Fletcher16(databuf,256));
-      sprintf(filename,"data/track%02dsec%02d%s",found_track,found_sector,suffix);
       FILE *fp=fopen(filename,"rb");
       if (fp!=NULL) {                                      // exists
          // so it exists in a good form - just do nothing - we have the same result
