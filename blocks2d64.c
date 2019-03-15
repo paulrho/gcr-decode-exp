@@ -11,9 +11,9 @@ void scanblocks()
       if (track==36) {
          for (int sector=0; sector<sectors_per_track(track); ++sector) {
             st=findblocks(track,sector,0);
-            if (st!=1) break;
+            if (st<SM_GOOD || st>SM_BAD) break;
          }
-         if (st!=1) break;
+         if (st<SM_GOOD || st>SM_BAD) break; // note - will still kick over on a "bad" - but existing sector
       }
       fprintf(stdout,"TRACK %2d ",track);
       for (int sector=0; sector<sectors_per_track(track); ++sector) {
