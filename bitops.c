@@ -162,13 +162,13 @@ void fluxspan(int algmode, int c, int lastc) {
             if (ct>55) { /*td=">>>>";*/ addbit(-1); dbgprintf(stderr,">%d ",ct); }
          }
          else if (algmode==0) {                            //old
-            /*td="-";
-            if (ct<7) { /*td="."; /* ignore */ dbgprintf(stderr,"."); }
-            if (ct>=7 && ct<14) { /*td="_"; addbit(-1); dbgprintf(stderr,"_%d ",ct); }
-            if (ct>=14 && ct<32) { /*td="1"; addbit(1); }
-            if (ct>=32 && ct<49) { /*td="01"; addbit(0); addbit(1); }
-            if (ct>=50 && ct<=60) { /*td="001"; addbit(0); addbit(0); addbit(1); }
-            if (ct>60) { /*td=">>>>"; addbit(-1); dbgprintf(stderr,">%d ",ct); }
+            /*td="-";*/
+            if (ct<7) { /*td=".";*/ /* ignore */ dbgprintf(stderr,"."); }
+            if (ct>=7 && ct<14) { /*td="_";*/ addbit(-1); dbgprintf(stderr,"_%d ",ct); }
+            if (ct>=14 && ct<32) { /*td="1";*/ addbit(1); }
+            if (ct>=32 && ct<49) { /*td="01";*/ addbit(0); addbit(1); }
+            if (ct>=50 && ct<=60) { /*td="001";*/ addbit(0); addbit(0); addbit(1); }
+            if (ct>60) { /*td=">>>>";*/ addbit(-1); dbgprintf(stderr,">%d ",ct); }
          }
          else if (algmode>100) {                           // its a frequency factor
             //

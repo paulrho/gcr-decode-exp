@@ -1,6 +1,7 @@
 #!/bin/sh
 
-./r15 -scan 2>/dev/null
+./r15 -scan 2>/dev/null | tee work/tmp1
+VAL=`tail -1 work/tmp1`
 
 echo -n "Blocks "
 /bin/ls -1 data/track*.dat | wc -l

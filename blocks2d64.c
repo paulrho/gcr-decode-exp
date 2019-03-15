@@ -5,6 +5,7 @@ int findblocks(int track, int sector, int change);
 void scanblocks()
 {
    int st=0;
+   int worst=SM_GOOD;
 
    for (int track=1; track<=70; ++track) {
       //fprintf(stderr,"track=%d\n",track);
@@ -13,15 +14,28 @@ void scanblocks()
             st=findblocks(track,sector,0);
             if (st<SM_GOOD || st>SM_BAD) break;
          }
-         if (st<SM_GOOD || st>SM_BAD) break; // note - will still kick over on a "bad" - but existing sector
+         if (st<SM_GOOD || st>SM_BAD) break;               // note - will still kick over on a "bad" - but existing sector
       }
       fprintf(stdout,"TRACK %2d ",track);
       for (int sector=0; sector<sectors_per_track(track); ++sector) {
          int st=findblocks(track,sector,1);
          fprintf(stdout,"%c",sectormap_char[st]);
+         if (!st || st>worst && worst) worst=st;
       }
       fprintf(stdout,"\n");
    }
+   switch (worst) {
+     case SM_MISSING: fprintf(stdout,"miss"); break;
+     case SM_GOODN:
+     case SM_GOODP:
+     case SM_GOOD1:
+     case SM_GOOD:    fprintf(stdout,"good"); break;
+     case SM_GOOD_DUP:fprintf(stdout,"dupe"); break;
+     case SM_CKM:     fprintf(stdout,"ckm"); break;
+     case SM_BAD:
+     default:         fprintf(stdout,"bad"); break;
+   }
+   fprintf(stdout,"\n");
 }
 
 #define UPDSTATUS(a)    if (!status || a<status) status=a
