@@ -1,0 +1,4 @@
+#!/bin/sh
+
+rm -f bitmap.dat 2>/dev/null
+
