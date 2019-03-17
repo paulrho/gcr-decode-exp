@@ -30,7 +30,7 @@ void scanblocks()
      case SM_GOODP:
      case SM_GOOD1:
      case SM_GOOD:    fprintf(stdout,"good"); break;
-     case SM_GOOD_DUP:fprintf(stdout,"dupe"); break;
+     case SM_GOOD_DUP: fprintf(stdout,"dupe"); break;
      case SM_CKM:     fprintf(stdout,"ckm"); break;
      case SM_BAD:
      default:         fprintf(stdout,"bad"); break;

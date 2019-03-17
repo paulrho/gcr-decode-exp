@@ -1,4 +1,3 @@
-
 void write_datablock_to_file()
 {
    // write data block to file
@@ -96,4 +95,3 @@ void write_datablock_to_file()
    }
    if (sectormap_track>0) update_sectormap(found_track,found_sector,state);
 }
-
