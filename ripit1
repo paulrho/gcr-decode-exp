@@ -173,6 +173,7 @@ do
   then
     ###DETECT_TYPE=$F
     DETECT_TYPE=3 # do within prog now
+    #DETECT_TYPE=4 # do within prog now
     ADV_PIPELEN=3000
     ADV_TIMING=0
     $DECODER $LIST $DETECT_TYPE $OUTPUT_TYPE $TRACK_MONITOR $SECTOR_MONITOR $MONITOR_OFFSET $ADV_PIPELEN $ADV_TIMING $SAVE_RAW $TRACK 1>>/var/tmp/1 2>>/var/tmp/2

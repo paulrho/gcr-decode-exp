@@ -273,8 +273,9 @@ void addbit(int bit)
 // this is for debuging via image output only
 
 int setting_f=0;
-void set_settings(int track)
+void set_settings(int set, int track)
 {
+   if (set==3) {
    if (track >=0 && track<=17) setting_f=1000;             // speed 3
    if (track >=18 && track<=24) setting_f=1080;            // speed 2
    if (track >=25 && track<=30) setting_f=1160;            // speed 1
@@ -283,6 +284,26 @@ void set_settings(int track)
    if (track >=18+35 && track<=24+35) setting_f=1080;      // speed 2
    if (track >=25+35 && track<=30+35) setting_f=1160;      // speed 1
    if (track >=31+35 && track<=35+35) setting_f=1240;      // speed 0
+   } else if (set==4) {
+    // old way
+   if (track >=0 && track<=17) setting_f=1050;             // speed 3
+   if (track >=18 && track<=24) setting_f=1130;            // speed 2
+   if (track >=25 && track<=30) setting_f=1210;            // speed 1
+   if (track >=31 && track<=35) setting_f=1290;            // speed 0
+   if (track >=1+35 && track<=17+35) setting_f=1050;       // speed 3
+   if (track >=18+35 && track<=24+35) setting_f=1130;      // speed 2
+   if (track >=25+35 && track<=30+35) setting_f=1210;      // speed 1
+   if (track >=31+35 && track<=35+35) setting_f=1290;      // speed 0
+   } else if (set==5) {
+   if (track >=0 && track<=17) setting_f=1000*4/5;             // speed 3
+   if (track >=18 && track<=24) setting_f=1080*4/5;            // speed 2
+   if (track >=25 && track<=30) setting_f=1160*4/5;            // speed 1
+   if (track >=31 && track<=35) setting_f=1240*4/5;            // speed 0
+   if (track >=1+35 && track<=17+35) setting_f=1000*4/5;       // speed 3
+   if (track >=18+35 && track<=24+35) setting_f=1080*4/5;      // speed 2
+   if (track >=25+35 && track<=30+35) setting_f=1160*4/5;      // speed 1
+   if (track >=31+35 && track<=35+35) setting_f=1240*4/5;      // speed 0
+   }
 }
 
 int main(int argc, char *argv[])
@@ -349,7 +370,7 @@ int main(int argc, char *argv[])
    if (is_pixels_setting==3) is_fluxout=1;                         // switch on if needs permanent on
    if (is_pixels_setting==2) is_colout=0;
    if (is_pixels_setting==3) is_fluxout=0;
-   if (algmode==3) { set_settings(sectormap_track); if (setting_f>100) algmode=setting_f; }
+   if (algmode>=3 && algmode<=5) { set_settings(algmode,sectormap_track); if (setting_f>100) algmode=setting_f; }
 
    if (sectormap_track>0) init_sectormap();
    //
