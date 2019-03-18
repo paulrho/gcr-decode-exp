@@ -53,6 +53,7 @@ SHOW_RAWFLUX=0
 SHOW_SORT=0
 #
 # other outputs
+# switch to g64 type output
 SAVE_RAW=0 # note - if this is one - then it will only read a certain amount!! # used for G64
 
 if [ $SAVE_RAW -eq 1 ]

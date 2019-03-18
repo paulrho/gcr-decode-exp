@@ -136,7 +136,10 @@ void addbit(int bit)
    if (m!=DATA && m!=HEADERI && m!=POSTHEADER) dbgprintf(stderr,"%d",bit);  //for now, we are just translating them
 
    // also, if waiting for data, and it takes too long -> invalidate everything!
-   if (m!=DATA && bitcount-lastset>5*50 && found_track>0) { dbgprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1; }
+   if (m!=DATA && bitcount-lastset>5*50 && found_track>0) {
+      dbgprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1;
+      raw_gotbad++;                                        // just for a test
+   }
 
    if (m==SYNC && bitc==10) {
       //
@@ -176,7 +179,10 @@ void addbit(int bit)
          if (is_pixels_setting==3) is_fluxout=0;           // switch off for track/sec monitor
          // invalidate everything!
          // only if it takes too long!
-         if (bitcount-lastset>5*50) { dbgprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1; }
+         if (bitcount-lastset>5*50) {
+            dbgprintf(stderr,"resetting found t/s to invalidate\n"); found_sector=-1; found_track=-1;
+            //not here //raw_gotbad++;                                  // just for a test
+         }
       }
       // not valid
    }

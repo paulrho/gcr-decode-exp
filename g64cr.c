@@ -44,7 +44,8 @@ void main()
 		    char filename[80];
 		    char buff[20000];
 		    //sprintf(filename,"../keepdata/track%02d.raw",t/2);
-		    sprintf(filename,"../data/track%02d.raw",t/2);
+		    //sprintf(filename,"../data/track%02d.raw",t/2);
+		    sprintf(filename,"data/track%02d.raw",t/2);
 		    fi=fopen(filename,"rb");
 		    if (fi==NULL) {fprintf(stderr,"could not open %s\n",filename); exit(2); }
 
