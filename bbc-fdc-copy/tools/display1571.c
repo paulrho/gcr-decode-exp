@@ -4,7 +4,7 @@
 
 char * CSI="\e[";
 
-int dummy=0;
+int display_dummy=0;
   FILE * fd;
 void cls()
 {
@@ -87,7 +87,7 @@ void printlayout() {
 	  colorbg_rgb(0,0,1);
 	else
 	  colorbg_rgb(0,0,0);
-	if (dummy) {
+	if (display_dummy) {
 	  if (t>23) {
 	    fprintf(fd,"?");
 	  } else if (t==23 && s>5 && h==1) {
@@ -103,7 +103,7 @@ void printlayout() {
   }
 
   // show where head is
-  if (dummy) { int t=23;
+  if (display_dummy) { int t=23;
 	colorfg_rgb(2,5,2);
 	cursorxy(30,t+3); 
 	fprintf(fd,">"); 
@@ -149,7 +149,7 @@ cursorxy(92,infoline++);  fprintf(fd,"%-18s:",head);
                           fprintf(fd,"%s",info);
 }
 
-display_flush() {
+void display_flush() {
   fflush(fd);
 }
 
@@ -179,7 +179,10 @@ updatesector(int tc64, int h, int s, int show) {
 	  colorbg_rgb(0,0,1);
 	else
 	  colorbg_rgb(0,0,0);
-	if (show>100) {
+	if (show>=200) {
+	        colorfg_rgb(0,3,0); //different colour to reflect previous read
+		fprintf(fd,"%c",show-200);
+	} else if (show>=100) {
 		// directly show char
 		fprintf(fd,"%c",show-100);
 	} else
@@ -230,45 +233,7 @@ showhead(int t, int h) {
   fflush(fd);
 }
 
-// this is duplicate code
-#define TOPSEC 30
-enum { SM_MISSING, SM_GOOD, SM_GOOD_DUP, SM_GOOD1, SM_GOODP, SM_GOODN, SM_CKM, SM_BAD, SM_HEADER_OK, SM_HEADER_ODD, SM_HEADER_BAD };
-char *sectormap_char="?.D:PNCXHBb";
-char sectormap[TOPSEC];                                    // will do whole disk later
-
-int sectors_per_track(int track)
-{
-  if (track>=1 && track<18) return 21;                    // 00..20
-  else if (track>=18 && track <25) return 19;
-  else if (track>=25 && track <31) return 18;
-  else if (track>=31 && track <=35) return 17;
-  else if (track>=1+35 && track<18+35) return 21;         // 00..20
-  else if (track>=18+35 && track <25+35) return 19;
-  else if (track>=25+35 && track <31+35) return 18;
-  else if (track>=31+35 && track <=35+35) return 17;
-  else return -1;
-}
-// duplicate code
-
-void
-display_read_sectors() // will look at bitmap.dat and display it on screen
-{
-  for (int i=0; i<TOPSEC; ++i) sectormap[i]=SM_MISSING;
-  // load a bitmap that saves state between runs - needs to be invalidated for different tracks
-  FILE *fp=fopen("bitmap.dat","rb");
-  if (fp==NULL) return;
-  int n=fread(sectormap, 1, TOPSEC, fp);
-  fclose(fp);
-  for (int i=0; i<sectors_per_track(last_display_head_track+1); ++i) 
-    updatesector(last_display_head_track+1,last_display_head_side,i,sectormap_char[sectormap[i]]+100);
-}
-
-int track_is_good() {
-  for (int i=0; i<sectors_per_track(last_display_head_track+1); ++i) 
-    if (!sectormap[i] || sectormap[i]>SM_GOODN) return 0;
-  return 1;
-}
-
+#include "interface1571.c"
 
 void
 display_hist_line(int line, char *str) {
@@ -288,13 +253,13 @@ display_hist_info(int line) {
 			"|","|","|","|","|");
 }
 
-void init() {
+void display_init() {
   fd=fdopen(3,"a");
   if (fd==NULL) { fprintf(stderr,"no fd=3 available\n"); exit(1); }
 	printlayout();
 }
 
-void finalize() {
+void display_finalize() {
   display_info_finish();
   resetscreen();
   fflush(fd);

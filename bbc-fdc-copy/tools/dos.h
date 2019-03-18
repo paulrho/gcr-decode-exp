@@ -124,4 +124,7 @@ struct dos_direntry
 extern void dos_showinfo(const unsigned int disktracks, const unsigned int debug);
 extern int dos_validate();
 
+extern void dos_showinfo_display(const unsigned int disktracks, const unsigned int debug);
+
+
 #endif

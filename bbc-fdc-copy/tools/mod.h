@@ -23,4 +23,7 @@ extern void mod_process(const unsigned char *sampledata, const unsigned long sam
 
 extern void mod_init(const int debug);
 
+extern int mod_findpeaks(const unsigned char *sampledata, const unsigned long samplesize);
+
+
 #endif

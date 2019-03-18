@@ -1,4 +1,6 @@
 #!/bin/sh
 
-rm -f bitmap.dat 2>/dev/null
+# not now, we are saving maps for whole disk
+# but as this is a different filename it wont matter
+##rm -f bitmap.dat 2>/dev/null
 

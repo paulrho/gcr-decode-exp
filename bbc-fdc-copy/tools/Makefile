@@ -13,7 +13,14 @@ all: drivetest bbcfdc checkfsd
 drivetest: drivetest.o hardware.o
 	$(CC) $(BUILDFLAGS) -o drivetest drivetest.o hardware.o -lbcm2835
 
-display.o: display.c display.h #display1541.c display3p5.c
+# additions
+display1571.c: ;
+interface1571.c: ;
+display3p5.c: ;
+
+# additions
+
+display.o: display.c display.h display3p5.c display1571.c interface1571.c
 	$(CC) $(BUILDFLAGS) -c -o display.o display.c
 
 drivetest.o: drivetest.c hardware.h

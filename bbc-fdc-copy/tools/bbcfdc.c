@@ -98,10 +98,18 @@ void fillflippybuffer(const unsigned char *rawdata, const unsigned long rawlen)
   }
 }
 
+void
+signal_child() {
+  printf("Signalling child\n");
+  //signal(SIGTERM, SIG_IGN); // Termination request
+  if (hw_child>0) kill(hw_child,SIGTERM);
+  //raise(SIGTERM);
+}
+
 // Stop the motor and tidy up upon exit
 void exitFunction()
 {
-  finalize();
+  display_finalize();
   printf("Exit function\n");
   signal_child(); // actually dont need this but...
   hw_done();
@@ -123,7 +131,7 @@ void exitFunction()
 void sig_handler(const int sig)
 {
   if (hw_child>0) {
-    finalize();
+    display_finalize();
   }
   fprintf(stderr,"Got signal %d\n",sig);
   fflush(stderr);
@@ -174,7 +182,7 @@ int main(int argc,char **argv)
   samplefile=NULL;
 #endif
 
-  init(); // display
+  display_init(); // display
 
   // Process command line arguments
   while (argn<argc)
@@ -535,16 +543,12 @@ int main(int argc,char **argv)
   {
     int othertrack=-1; //
     int otherhead;
-    int othersector;
-    int otherlength;
 
     // Check if it was FM sectors found
     if ((fm_lasttrack!=-1) && (fm_lasthead!=-1) && (fm_lastsector!=-1) && (fm_lastlength!=-1))
     {
       othertrack=fm_lasttrack;
       otherhead=fm_lasthead;
-      othersector=fm_lastsector;
-      otherlength=fm_lastlength;
     }
 
     // Check if it was MFM sectors found
@@ -552,8 +556,6 @@ int main(int argc,char **argv)
     {
       othertrack=mfm_lasttrack;
       otherhead=mfm_lasthead;
-      othersector=mfm_lastsector;
-      otherlength=mfm_lastlength;
     }
 
     // Only look at other side if user hasn't specified number of sides
@@ -703,6 +705,10 @@ int main(int argc,char **argv)
       system("./rclear");
       // Retry the capture if any sectors are missing
       printf("about to do retries = %d\n",retries);
+      if (1) {
+	      interface_display_read_sectors(1); // from previous runs (must be on this same disk - with valid rfi somewhere for the eventual read)
+	      if (interface_track_is_good()) continue;  // just go to the next, we wont even try
+      }
       for (retry=0; retry<retries; retry++)
       {
         // Wait for a bit after seek/head select to allow drive speed to settle
@@ -711,7 +717,7 @@ int main(int argc,char **argv)
 
         if (retry==0)
           printf("Sampling data for track %.2X head %.2x\n", i, side);
-        else if (retry>3) {
+        else if (retry>3+2) {
           //hw_seektotrack(0);
           //hw_seektotrack(i);
             //hw_usleep(500000); // 
@@ -818,20 +824,7 @@ int main(int argc,char **argv)
           printf("\n");
         }
         else
-          ; ///   YES now 20190316-1 //break; // No retries in RAW mode
-	  if (0) {
-	    if (retry>=5 && retry<20 && i>10) {
-              hw_seektotrack(i-10);
-	      hw_sleep(1);
-              hw_seektotrack(i);
-	    }
-	    if (retry>=5 && retry<15 && i<70) {
-              hw_seektotrack(i+10);
-	      hw_sleep(1);
-              hw_seektotrack(i);
-	    }
-	  }
-      //x // retry loop
+        {}; ///   YES now 20190316-1 //break; // No retries in RAW mode
 
       if (capturetype!=DISKRAW)
       {
@@ -927,7 +920,7 @@ int main(int argc,char **argv)
 //printf("writing rawdata \n");
           if (outputtype==IMAGERAW) {
               rfi_writetrack(rawdata, i, side, hw_measurerpm(), "rle", samplebuffer, samplebuffsize);
-	      if (track_is_good()) break;  // the retry loop
+	      if (interface_track_is_good()) break;  // the retry loop
           }
 
 //printf("at 2 writing rawdata \n");
@@ -1011,7 +1004,7 @@ int main(int argc,char **argv)
       // Prepare a blank sector when no sector is found in store
       bzero(blanksector, sizeof(blanksector));
 
-      for (i=0; ((i<hw_maxtracks) && (i<disktracks)); i++)
+      for (i=0; (((int)i<hw_maxtracks) && (i<disktracks)); i++)
       {
         for (imgside=0; imgside<sides; imgside++)
         {
@@ -1046,9 +1039,9 @@ int main(int argc,char **argv)
       bzero(blanksector, sizeof(blanksector));
       if (1) {
         // mark it with missing and EE
-        strcpy(&blanksector[16],"START MISSING SECTOR (offset 16)");
+        strcpy((char *)&blanksector[16],"START MISSING SECTOR (offset 16)");
         for (int i=128; i<512-128; ++i) blanksector[i]=0xEE;
-        strcpy(&blanksector[512-64],"END MISSING SECTOR (offset 64)");
+        strcpy((char *)&blanksector[512-64],"END MISSING SECTOR (offset 64)");
       }
 
       if ((diskstore_minsectorid!=-1) && (diskstore_maxsectorid!=-1))
@@ -1056,7 +1049,7 @@ int main(int argc,char **argv)
         if ((diskstore_minsectorsize!=-1) && (diskstore_maxsectorsize!=-1) && (diskstore_minsectorsize==diskstore_maxsectorsize))
           sectorsize=diskstore_minsectorsize;
 
-        for (i=0; ((i<hw_maxtracks) && (i<disktracks)); i++)
+        for (i=0; (((int)i<hw_maxtracks) && (i<disktracks)); i++)
         {
           for (imgside=0; imgside<sides; imgside++)
           {
@@ -1157,14 +1150,8 @@ int main(int argc,char **argv)
   if (missingsectors>0)
     printf("Missing %d sectors\n", missingsectors);
 
-  finalize();
+  display_finalize();
   return 0;
 }
 
-int
-signal_child() {
-  printf("Signalling child\n");
-  //signal(SIGTERM, SIG_IGN); // Termination request
-  if (hw_child>0) kill(hw_child,SIGTERM);
-  //raise(SIGTERM);
-}
+

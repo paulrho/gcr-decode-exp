@@ -2,9 +2,9 @@
 
 #rm -f bitmap.dat 2>/dev/null
 
-r/r15 track.rle 1>r1 2>r2 010 0 -1 -1 0 0 0 0 $1 
+./r15 track.rle 1>r1 2>r2 010 0 -1 -1 0 0 0 0 $1 
 tail -1 r2 ; tail -1 r2>>coll
 
-r/r15 track.rle 1>r1 2>r2 003 0 -1 -1 0 0 0 0 $1 
+./r15 track.rle 1>r1 2>r2 003 0 -1 -1 0 0 0 0 $1 
 tail -1 r2 ; tail -1 r2>>coll
 

@@ -9,7 +9,7 @@ void main () {
   fd=fdopen(3,"a");
   if (fd==NULL) exit(1);
   //test();
-  dummy=1;
+  display_dummy=1;
   printlayout();
   resetscreen();
   printf("this is normally stdout\n");

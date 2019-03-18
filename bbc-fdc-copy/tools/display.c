@@ -2,6 +2,8 @@
 //#define TYPE1541
 #define TYPE1571
 
+#include "display.h"
+
 #ifdef TYPE35
 #include "display3p5.c"
 #endif

@@ -4,7 +4,7 @@
 
 char * CSI="\e[";
 
-int dummy=0;
+int display_dummy=0;
   FILE * fd;
 void cls()
 {
@@ -87,7 +87,7 @@ void printlayout() {
 	  colorbg_rgb(0,0,1);
 	else
 	  colorbg_rgb(0,0,0);
-	if (dummy) {
+	if (display_dummy) {
 	  if (t>43) {
 	    fprintf(fd,".");
 	  } else if (t==43 && s>5 && h==1) {
@@ -103,7 +103,7 @@ void printlayout() {
   }
 
   // show where head is
-  if (dummy) { int t=43;
+  if (display_dummy) { int t=43;
 	colorfg_rgb(2,5,2);
 	cursorxy(t+7,19+3-1); 
 	fprintf(fd,"v"); 
