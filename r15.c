@@ -19,6 +19,8 @@ void switchonraw();
 
 #define MAXFS    10000000
 
+// you need to switch this to 1 if you know there is more than 35 tracks (like viatel)
+int	 is_one_sided=0; // this allows more than 35 tracks on one side - with correct timings
 int      rfi_trackdatalen;
 char     rlebuff[MAXFS];
 char     buf[MAXFS];
@@ -281,6 +283,7 @@ void addbit(int bit)
 int setting_f=0;
 void set_settings(int set, int track)
 {
+   if (is_one_sided && track>35) track=35; // jut for here
    if (set==3) {
       if (track >=0 && track<=17) setting_f=1000;          // speed 3
       if (track >=18 && track<=24) setting_f=1080;         // speed 2

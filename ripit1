@@ -144,7 +144,9 @@ do
       echo "$TRACK" >>work/3
     fi
   #### only do single for moment?
-  if [ $PHYSTRACK -le 35 ]
+  #if [ $PHYSTRACK -le 35 ]
+  # do single more than 35
+  if [ $PHYSTRACK -le 39 ]
   then
   rm bitmap.dat 2>/dev/null
 

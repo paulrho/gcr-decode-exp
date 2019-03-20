@@ -10,12 +10,14 @@
 //   of 0 for all good
 //   of 1 for something missing/wrong
 //
+extern int is_one_sided;
 #define TOPSEC    30
 int  sectormap_track=-1;                                   // passed by new parameter
 char sectormap[TOPSEC];                                    // will do whole disk later
 // at moment - just for 35 track single side
 int sectors_per_track(int track)
 {
+   if (is_one_sided && track>35) track=35;
    if (track>=1 && track<18) return 21;                    // 00..20
    else if (track>=18 && track <25) return 19;
    else if (track>=25 && track <31) return 18;

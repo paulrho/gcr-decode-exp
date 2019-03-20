@@ -9,12 +9,17 @@ void scanblocks()
 
    for (int track=1; track<=70; ++track) {
       //fprintf(stderr,"track=%d\n",track);
-      if (track==36) {
+      if (!is_one_sided && track==36) {
          for (int sector=0; sector<sectors_per_track(track); ++sector) {
             st=findblocks(track,sector,0);
             if (st<SM_GOOD || st>SM_BAD) break;
          }
          if (st<SM_GOOD || st>SM_BAD) break;               // note - will still kick over on a "bad" - but existing sector
+      }
+      else if (is_one_sided && track>=36) {
+         // if anything good - go, otherwise finish
+         st=findblocks(track,/*sector*/0,0);
+         if (st<SM_GOOD || st>SM_BAD) break;
       }
       fprintf(stdout,"TRACK %2d ",track);
       for (int sector=0; sector<sectors_per_track(track); ++sector) {
