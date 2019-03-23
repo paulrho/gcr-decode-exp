@@ -95,6 +95,12 @@ done
 
   >work/3
 
+if [ 1 -eq 1 ]
+then
+  # this is now done at the disk level
+  rm bitmapt*.dat 2>/dev/null
+fi
+
 for LIST in `/bin/ls -1 split/out???-track${PTRACK}side${PSIDE}.raw` # for x200
 do   
 

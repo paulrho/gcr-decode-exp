@@ -19,8 +19,8 @@ void switchonraw();
 
 #define MAXFS    10000000
 
-// you need to switch this to 1 if you know there is more than 35 tracks (like viatel)
-int	 is_one_sided=0; // this allows more than 35 tracks on one side - with correct timings
+int      reversed=0;
+int      is_one_sided=0;                                   // this allows more than 35 tracks on one side - with correct timings // you need to switch this to 1 if you know there is more than 35 tracks (like viatel)
 int      rfi_trackdatalen;
 char     rlebuff[MAXFS];
 char     buf[MAXFS];
@@ -283,7 +283,7 @@ void addbit(int bit)
 int setting_f=0;
 void set_settings(int set, int track)
 {
-   if (is_one_sided && track>35) track=35; // jut for here
+   if (is_one_sided && track>35) track=35;                 // jut for here
    if (set==3) {
       if (track >=0 && track<=17) setting_f=1000;          // speed 3
       if (track >=18 && track<=24) setting_f=1080;         // speed 2
@@ -375,6 +375,9 @@ int main(int argc, char *argv[])
       if (argc>=11) {
          sectormap_track=atoi(argv[10]);
       }
+      if (argc>=12) {
+         reversed=atoi(argv[11]);
+      }
    }
 
    if (is_pixels_setting==1 || is_pixels_setting==2) is_colout=1;  // switch on if needs permanent on
@@ -400,7 +403,8 @@ int main(int argc, char *argv[])
       blen=0; s=0;
       lastc=0;
       // read the whole thing (pre-pass)
-      for (ix=0; ix<nx; ix++) {                            // dont need to worry about reverse - same result
+      //for (ix=0; ix<nx; ix++) {                            // dont need to worry about reverse - same result ?
+      for (ix=reversed ? nx-1 : 0; (ix<nx)&&!reversed||reversed&&(ix>=0); reversed ? ix-- : ix++) { // normal
          c=rlebuff[ix];
          //if (s==1) if (c!=0 && c!=255) bitpipe_new(c);
          if (s==1) if (c!=0 && c!=255) bitpipe_new(c+lastc);
@@ -417,7 +421,6 @@ int main(int argc, char *argv[])
    //
    blen=0; s=0;
    lastc=0;
-   int reversed=0;                                                                               // allow reverse read (hardcode)
    for (ix=reversed ? nx-1 : 0; (ix<nx)&&!reversed||reversed&&(ix>=0); reversed ? ix-- : ix++) { // normal
       if (save_raw) if (rawp==MAXRAW) break;                                                     // for now
       if (save_raw<0) { dbgprintf(stderr,"stopping reading early\n"); break; }                   // for now

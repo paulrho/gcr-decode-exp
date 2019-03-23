@@ -10,14 +10,12 @@
 //   of 0 for all good
 //   of 1 for something missing/wrong
 //
-extern int is_one_sided;
 #define TOPSEC    30
 int  sectormap_track=-1;                                   // passed by new parameter
 char sectormap[TOPSEC];                                    // will do whole disk later
 // at moment - just for 35 track single side
 int sectors_per_track(int track)
 {
-   if (is_one_sided && track>35) track=35;
    if (track>=1 && track<18) return 21;                    // 00..20
    else if (track>=18 && track <25) return 19;
    else if (track>=25 && track <31) return 18;
@@ -46,7 +44,10 @@ void init_sectormap()
 {
    for (int i=0; i<TOPSEC; ++i) sectormap[i]=SM_MISSING;
    // load a bitmap that saves state between runs - needs to be invalidated for different tracks
-   FILE *fp=fopen("bitmap.dat","rb");
+   //FILE *fp=fopen("bitmap.dat","rb");
+   char filename[80];
+   sprintf(filename,"bitmapt%02d.dat",sectormap_track /* *2+1+35*h offset*/);
+   FILE *fp=fopen(filename,"rb");
    if (fp==NULL) return;
    int n=fread(sectormap, 1, TOPSEC, fp);
    dbgprintf(stderr,"track %02d bitmap_d: ",sectormap_track);
@@ -57,7 +58,10 @@ void init_sectormap()
 
 int save_sectormap()
 {
-   FILE *fp=fopen("bitmap.dat","wb");
+   //FILE *fp=fopen("bitmap.dat","wb");
+   char filename[80];
+   sprintf(filename,"bitmapt%02d.dat",sectormap_track /* *2+1+35*h offset*/);
+   FILE *fp=fopen(filename,"wb");
 
    if (fp==NULL) {
       dbgprintf(stderr,"could not save bitmap\n");
@@ -91,3 +95,4 @@ int is_good_sectormap()
 }
 
 /////////////////////////////////////////////////////////////////////////////
+

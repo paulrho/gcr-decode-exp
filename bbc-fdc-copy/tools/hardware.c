@@ -35,7 +35,10 @@ int spawn_force_index()
 		while (1) {
 
   			//delay(166); // wait maximum time for step // rpm 360 // yes this works for 300rpm too
-  			delay(200); // wait maximum time for step // rpm 300
+  			//delay(200); // wait maximum time for step // rpm 300
+			// fix - subtrack the force index delay amount to make it 200 exactly (300rpm)
+  			delay(200-13-1); // wait maximum time for step minus one to get it over // rpm 300 
+
 			//fprintf(stderr,"Flash\n");
     			bcm2835_gpio_set(FORCE_INDEX);
     			//bcm2835_gpio_Xset(FORCE_INDEX);
