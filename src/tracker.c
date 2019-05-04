@@ -10,6 +10,7 @@
 //   of 0 for all good
 //   of 1 for something missing/wrong
 //
+#include <sys/stat.h> // for mkdir
 #define TOPSEC    30
 int  sectormap_track=-1;                                   // passed by new parameter
 char sectormap[TOPSEC];                                    // will do whole disk later
@@ -38,6 +39,7 @@ int sectors_per_track(int track)
  **/
 
 //     ?           .        D            :         P         N         C       X       H             B              b
+char * prefixdir="worktmp/";
 enum { SM_MISSING, SM_GOOD, SM_GOOD_DUP, SM_GOOD1, SM_GOODP, SM_GOODN, SM_CKM, SM_BAD, SM_HEADER_OK, SM_HEADER_ODD, SM_HEADER_BAD };
 char *sectormap_char="?.D:PNCXHBb";
 void init_sectormap()
@@ -46,7 +48,7 @@ void init_sectormap()
    // load a bitmap that saves state between runs - needs to be invalidated for different tracks
    //FILE *fp=fopen("bitmap.dat","rb");
    char filename[80];
-   sprintf(filename,"bitmapt%02d.dat",sectormap_track /* *2+1+35*h offset*/);
+   sprintf(filename,"%s/bitmapt%02d.dat",prefixdir,sectormap_track /* *2+1+35*h offset*/);
    FILE *fp=fopen(filename,"rb");
    if (fp==NULL) return;
    int n=fread(sectormap, 1, TOPSEC, fp);
@@ -58,9 +60,10 @@ void init_sectormap()
 
 int save_sectormap()
 {
+   mkdir(prefixdir,0775);
    //FILE *fp=fopen("bitmap.dat","wb");
    char filename[80];
-   sprintf(filename,"bitmapt%02d.dat",sectormap_track /* *2+1+35*h offset*/);
+   sprintf(filename,"%s/bitmapt%02d.dat",prefixdir,sectormap_track /* *2+1+35*h offset*/);
    FILE *fp=fopen(filename,"wb");
 
    if (fp==NULL) {

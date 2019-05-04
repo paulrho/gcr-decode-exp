@@ -142,7 +142,7 @@ int findblocks(int track, int sector, int change)
          int  n;
          char buf[256];
          for (int i=0; i<256; ++i) buf[i]=0;
-         sprintf(newname,"data/track%02dsec%02d.mssing.dat",track,sector);
+         sprintf(newname,"data/track%02dsec%02d.missing.dat",track,sector);
          //sprintf(newname,"data/trackxxsecxx.missing.dat",track,sector);
          FILE *fp=fopen(newname,"wb");
          if (fp!=NULL) {
