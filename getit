@@ -7,7 +7,9 @@ mkdir d64 2>/dev/null
 DISK="$1"
 #scp -rp pi@192.168.99.3:/home/pi/pub/floppy/bbc-fdc/tools/out/disk${DISK}*-*.rfi ../out/
 ####rsync --progress -v -a pi@192.168.99.8:/home/pi/pub/floppy/bbc-fdc/tools/out/disk${DISK}*-*.rfi  ../out/
-rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/rfi/disk${DISK}*-*.rfi  ../out/
+#rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/rfi/disk${DISK}*-*.rfi  ../out/
+#rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/w/disk${DISK}*-*.rfi  ../out/
+rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/work/w*/disk${DISK}*-*.rfi  ../out/
 ./ripit1 "??" "?" ../out/disk${DISK}*-*.rfi | tee -a  output/o${DISK}
 ./fm41fix2 | tee work/fm.out
 TAG=`grep "Status:" work/fm.out | sed "s/Status: //"`
