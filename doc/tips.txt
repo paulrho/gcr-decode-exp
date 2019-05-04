@@ -4,3 +4,9 @@ xxd -c256
 dhex
 dhex $1 $2
 less -r # this keeps the \r to what it really does
+
+
+
+===
+pi@raspberrypi3bp:~/pub/floppy/bbc-fdc/tools $ sudo ./bbcfdc -o out/disk234f-drive0-525-a2.rfi -spidiv 64 -r 15 -s s -v^C
+
