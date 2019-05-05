@@ -9,8 +9,11 @@ DISK="$1"
 ####rsync --progress -v -a pi@192.168.99.8:/home/pi/pub/floppy/bbc-fdc/tools/out/disk${DISK}*-*.rfi  ../out/
 #rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/rfi/disk${DISK}*-*.rfi  ../out/
 #rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/w/disk${DISK}*-*.rfi  ../out/
-rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/work/w*/disk${DISK}*-*.rfi  ../out/
-./ripit1 "??" "?" ../out/disk${DISK}*-*.rfi | tee -a  output/o${DISK}
+#rsync --progress -v -a pi@192.168.99.31:/home/pi/copy/tools/work/w*/disk${DISK}*-*.rfi  ../out/
+# now in /home/pi/PGS3/github/gcr-decode-exp/bbc-fdc-mod/tools/w
+# also keep in a directory one up called rfi
+rsync --progress -v -a pi@192.168.99.31:/home/pi/PGS3/github/gcr-decode-exp/bbc-fdc-mod/tools/work/w*/disk${DISK}*-*.rfi  ../rfi/
+./ripit1 "??" "?" ../rfi/disk${DISK}*-*.rfi | tee -a  output/o${DISK}
 ./fm41fix2 | tee work/fm.out
 TAG=`grep "Status:" work/fm.out | sed "s/Status: //"`
 cat work/fm.out >> output/o${DISK}
