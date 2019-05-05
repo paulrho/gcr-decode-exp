@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include "display.h"
+#include "interface_no_1571.c"
 
 char * CSI="\e[";
 
@@ -223,13 +225,13 @@ showhead(int t, int h) {
   fflush(fd);
 }
 
-void init() {
+void display_init() {
   fd=fdopen(3,"a");
   if (fd==NULL) { fprintf(stderr,"no fd=3 available\n"); exit(1); }
 	printlayout();
 }
 
-void finalize() {
+void display_finalize() {
   display_info_finish();
   resetscreen();
   fflush(fd);
@@ -250,4 +252,7 @@ void oldmain () {
   resetscreen();
   printf("this is normally stdout\n");
 }
+
+display_hist_line() { }
+display_hist_info() { }
 

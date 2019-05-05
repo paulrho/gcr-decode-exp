@@ -1,4 +1,5 @@
 // this is duplicate code with sectormap.c (part of r15)
+char * prefixdir="worktmp/";
 #define TOPSEC 30
 enum { SM_MISSING, SM_GOOD, SM_GOOD_DUP, SM_GOOD1, SM_GOODP, SM_GOODN, SM_CKM, SM_BAD, SM_HEADER_OK, SM_HEADER_ODD, SM_HEADER_BAD };
 char *sectormap_char="?.D:PNCXHBb";
@@ -30,7 +31,7 @@ interface_display_read_sectors(int is_from_previous) // will look at bitmap.dat 
   //if (111) { // one sided but reading the reverse 
 	  //sprintf(filename,"bitmapt%02d.dat",last_display_head_track+1+4*last_display_head_side/* *2+1+h*35 offset*/);
   //} else {
-	  sprintf(filename,"bitmapt%02d.dat",last_display_head_track+1+last_display_head_side*35/* *2+1+h*35 offset*/);
+	  sprintf(filename,"%s/bitmapt%02d.dat",prefixdir,last_display_head_track+1+last_display_head_side*35/* *2+1+h*35 offset*/);
   //}
   FILE *fp=fopen(filename,"rb");
   if (fp==NULL) return;

@@ -23,6 +23,10 @@ display3p5.c: ;
 display.o: display.c display.h display3p5.c display1571.c interface1571.c
 	$(CC) $(BUILDFLAGS) -c -o display.o display.c
 
+#special
+display_pc.o: display.h display3p5.c display1571.c interface1571.c
+	$(CC) $(BUILDFLAGS) -c -o display_pc.o display3p5.c
+
 drivetest.o: drivetest.c hardware.h
 	$(CC) $(BUILDFLAGS) -c -o drivetest.o drivetest.c
 
@@ -37,6 +41,13 @@ bbcfdc: bbcfdc.o adfs.o crc.o dfi.o dfs.o diskstore.o dos.o fm.o fsd.o hardware.
 
 bbcfdc.o: bbcfdc.c adfs.h dfi.h dfs.h diskstore.h dos.h fm.h fsd.h hardware.h jsmn.h mfm.h mod.h rfi.h display.h
 	$(CC) $(BUILDFLAGS) -c -o bbcfdc.o bbcfdc.c
+
+#special
+bbcfdc_pc: bbcfdc_pc.o adfs.o crc.o dfi.o dfs.o diskstore.o dos.o fm.o fsd.o hardware.o jsmn.o mfm.o mod.o rfi.o display_pc.o
+	$(CC) $(BUILDFLAGS) -o bbcfdc_pc adfs.o bbcfdc.o crc.o dfi.o dfs.o diskstore.o dos.o fm.o fsd.o hardware.o jsmn.o mfm.o mod.o rfi.o display_pc.o -lbcm2835
+
+bbcfdc_pc.o: bbcfdc.c adfs.h dfi.h dfs.h diskstore.h dos.h fm.h fsd.h hardware.h jsmn.h mfm.h mod.h rfi.h display.h
+	$(CC) $(BUILDFLAGS) -c -o bbcfdc_pc.o bbcfdc.c
 
 ##########################
 

@@ -1,11 +1,13 @@
 #!/bin/sh
 cd src
 make
-make bbcfdc-nopi
+make bbcfdc-nopi # if required
+make bbcfdc_pc # if required
 gcc -odisplay displaymain.c display.c
 cd ..
 ln -s src/bbcfdc
-ln -s src/bbcfdc-nopi
+ln -s src/bbcfdc_pc # if required
+ln -s src/bbcfdc-nopi # if required
 ln -s src/checkfsd
 ln -s src/display
 ln -s src/drivetest
