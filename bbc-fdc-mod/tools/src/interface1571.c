@@ -27,7 +27,11 @@ interface_display_read_sectors(int is_from_previous) // will look at bitmap.dat 
   // load a bitmap that saves state between runs - needs to be invalidated for different tracks
   //FILE *fp=fopen("bitmap.dat","rb");
   char filename[80];
-  sprintf(filename,"bitmapt%02d.dat",last_display_head_track+1+last_display_head_side*35/* *2+1+h*35 offset*/);
+  //if (111) { // one sided but reading the reverse 
+	  //sprintf(filename,"bitmapt%02d.dat",last_display_head_track+1+4*last_display_head_side/* *2+1+h*35 offset*/);
+  //} else {
+	  sprintf(filename,"bitmapt%02d.dat",last_display_head_track+1+last_display_head_side*35/* *2+1+h*35 offset*/);
+  //}
   FILE *fp=fopen(filename,"rb");
   if (fp==NULL) return;
   int n=fread(sectormap, 1, TOPSEC, fp);

@@ -49,6 +49,7 @@ int hw_child=-1;
 int trick_index=0;
 #endif
 
+int do_initialread=1;
 int is_fasttry=0; // speeds track stepping, waiting on index, track settling time
 int skiptracks=0;
 int stoptracks=-1;
@@ -221,6 +222,11 @@ int main(int argc,char **argv)
       is_fasttry=1;
     }
     else
+    if (strcmp(argv[argn], "-noinit")==0)
+    {
+      do_initialread=0;
+    }
+    else
     if ((strcmp(argv[argn], "-skip")==0) && ((argn+1)<argc))
     {
       int retval;
@@ -379,6 +385,7 @@ int main(int argc,char **argv)
         {
           capturetype=DISKRAW;
           outputtype=IMAGERAW;
+          display_info_filename(argv[argn]);
         }
         else
           printf("Unable to save rawdata\n");
@@ -522,11 +529,13 @@ int main(int argc,char **argv)
   // Wait for a bit after seek to allow drive speed to settle
   hw_sleep(1);
 
+  if (do_initialread) {
   // Sample track
 //printf("starting sampleraw data 1\n");
   hw_samplerawtrackdata((char *)samplebuffer, samplebuffsize);
 //printf("finished sampleraw data 1\n");
   mod_process(samplebuffer, samplebuffsize, 99);
+  }
 
   // Check readability
   if ((fm_lasttrack==-1) && (fm_lasthead==-1) && (fm_lastsector==-1) && (fm_lastlength==-1))
@@ -567,11 +576,13 @@ int main(int argc,char **argv)
       // Wait for a bit after head switch to allow drive to settle
       hw_sleep(1);
 
+  //if (do_initialread) {
       // Sample track
 //printf("starting sampleraw data 2\n");
       hw_samplerawtrackdata((char *)samplebuffer, samplebuffsize);
 //printf("finished sampleraw data 2\n");
       mod_process(samplebuffer, samplebuffsize, 99);
+  //}
 
       // Check for flippy disk
       if ((fm_lasttrack==-1) && (fm_lasthead==-1) && (fm_lastsector==-1) && (fm_lastlength==-1)
@@ -702,7 +713,7 @@ int main(int argc,char **argv)
       hw_sideselect(side); showhead(hw_currenttrack,side);
 
       // clear 
-      system("./rclear");
+      system("interface-rclear");
       // Retry the capture if any sectors are missing
       printf("about to do retries = %d\n",retries);
       if (1) {

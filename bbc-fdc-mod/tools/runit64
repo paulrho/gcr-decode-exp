@@ -5,4 +5,42 @@
 #./bbcfdc -v -o $1 -spidiv 64 -rotations 3 -fast -r 1 3>&1 >1 2>2
 #./bbcfdc -v -o $1 -spidiv 64 -rotations 3 -fast -r 5 3>&1 >1 2>2 # will do a single rewind retry
 #./bbcfdc -v -o $1 -spidiv 64 -rotations 3 -fast -r 3 -tmax 36 -stop 36 3>&1 >1 2>2
-./bbcfdc -v -o $1 -spidiv 64 -rotations 6 -fast -r 3 -tmax 36 -stop 36 3>&1 >1 2>2
+#./bbcfdc -v -o $1 -spidiv 64 -rotations 6 -fast -r 3 -tmax 36 -stop 36 3>&1 >1 2>2
+#./bbcfdc -v -o $1 -spidiv 64 -rotations 3 -fast -r 5 -skip $2 -tmax 36 -stop 36 -flipped 3>&1 >1 2>2
+ #2202  sudo nice -n -20 ./runit64b_s disk303-a8.rfi -skip 27
+if [ $# -ge 1 ]
+then
+  BASENAME=${1} # dont pass in .rfi any more
+else
+  #BASENAME="work"
+  #echo "defaulting to $BASENAME"
+  echo "$0 basenamedir [-flipped] [-ds] [-rotations 3] [-r n] [-skip nn] [-stop 36] ..."
+  echo "  -r : retries [ default:2, >=5 will seek 0 ]"
+  exit 1
+fi
+BASEPWD=$PWD
+PATH="$PWD:$PATH" ; export PATH # for now
+
+rm w 2>/dev/null
+ln -s work/work_${BASENAME} w
+
+mkdir work 2>/dev/null
+cd work || exit 1
+
+mkdir work_${BASENAME} 2>/dev/null
+cd work_${BASENAME} || exit 1
+
+
+FILENAME=`nextname ${BASENAME}.rfi`
+# only for now until change the code
+###ln -s ../r15 r15 2>/dev/null
+###ln -s ../rtrack rtrack 2>/dev/null
+###ln -s ../rclear rclear 2>/dev/null
+# dont even need the ../bb...
+#echo '../bbcfdc -v -o '$FILENAME' -spidiv 64 -rotations 3 -fast -r 5 -tmax 36 -stop 36 '$2' '$3' '$4' '$5' 3>&1 >1 2>2'
+# -noinit
+echo $PATH
+echo `date`" $0 $*" >>run.log
+echo 'sudo nice -n -20 sh -c PATH='$BASEPWD':$PATH bbcfdc -v -o '$FILENAME' -spidiv 64 -rotations 3 -fast -r 2 -tmax 36 -stop 36 '$2' '$3' '$4' '$5' 3>&1 >1 2>2' >>run.log
+sudo nice -n -20 sh -c 'PATH='$BASEPWD:'$PATH bbcfdc -v -o '$FILENAME' -spidiv 64 -rotations 3 -fast -r 2 -tmax 36 -stop 36 '$2' '$3' '$4' '$5' '$6' '$7' '$8' '$9' 3>&1 >1 2>2'
+echo `date`" status=$?" >>run.log

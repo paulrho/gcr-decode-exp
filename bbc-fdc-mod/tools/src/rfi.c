@@ -248,7 +248,7 @@ void rfi_writetrack(FILE *rfifile, const int track, const int side, const float 
 		// should actually run it now!!!!!
 		// ..... run  ./r15 track.rle ...params...
 		char cmd[80];
-		sprintf(cmd,"./rtrack %d",track+1+side*35);
+		sprintf(cmd,"interface-rtrack %d",track+1+side*35);
 		system(cmd);
 		interface_display_read_sectors(0); // will look at bitmap.dat and display it on screen
 		// determine if we should try and reread the track // accumulate 
