@@ -1,6 +1,15 @@
+
+# old runit
+#./bbcfdc -o tmp-a.img -spidiv 16 -rotations 2 -fast -r 5 3>&1 >1 2>2
+## the trick for display (which outputs to fd=3) is to redirect that to stdout, and move existing stdout/err to 1 and 2
+## run with (reverse-i-search)`sud': time sudo nice -n 20 ./runit tmp-2.img
+#./bbcfdc -o $1 -spidiv 16 -rotations 2 -fast -r 7 3>&1 >1 2>2
+
 #./bbcfdc -o tmp-a.img -spidiv 16 -rotations 2 -fast -r 5 3>&1 >1 2>2
 # the trick for display (which outputs to fd=3) is to redirect that to stdout, and move existing stdout/err to 1 and 2
 # run with (reverse-i-search)`sud': time sudo nice -n 20 ./runit tmp-2.img
 # needs to be xxx.img
 # needs to  e run as root
-./bbcfdc_pc -o $1 -spidiv 16 -rotations 2 -fast -r 7 3>&1 >1 2>2
+mkdir out 2>/dev/null
+# was rotation 2
+./bbcfdc_pc -o $1 -spidiv 16 -rotations 2 -fast -r 7 3>&1 >out/1 2>out/2

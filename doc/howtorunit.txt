@@ -1,0 +1,5 @@
+cd bbc*/tools
+
+./copy/tools/keep/hist.keep.3: 1669  sudo nice -n -20 ./bbcfdc -o dtcpeople-drive2-et-7r.img -spidiv 16 -r 15  -rotations 7 -fast
+
+
