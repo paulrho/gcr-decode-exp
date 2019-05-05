@@ -2,11 +2,13 @@
 cd src
 make
 make bbcfdc-nopi
-make display
+gcc -odisplay displaymain.c display.c
 cd ..
 ln -s src/bbcfdc
 ln -s src/bbcfdc-nopi
 ln -s src/checkfsd
 ln -s src/display
 ln -s src/drivetest
+# need to build the decoder first
+ln -s ../../src/r15
 

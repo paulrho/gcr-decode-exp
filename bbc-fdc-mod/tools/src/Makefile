@@ -40,7 +40,7 @@ bbcfdc.o: bbcfdc.c adfs.h dfi.h dfs.h diskstore.h dos.h fm.h fsd.h hardware.h js
 
 ##########################
 
-bbcfdc-nopi: bbcfdc-nopi.o adfs.o crc.o dfi.o dfs.o diskstore.o dos.o fm.o fsd.o jsmn.o mfm.o mod.o nopi.o rfi.o
+bbcfdc-nopi: bbcfdc-nopi.o adfs.o crc.o dfi.o dfs.o diskstore.o dos.o fm.o fsd.o jsmn.o mfm.o mod.o nopi.o rfi.o display.o
 	$(CC) $(BUILDFLAGS) -DNOPI -o bbcfdc-nopi bbcfdc-nopi.o adfs.o crc.o dfi.o dfs.o diskstore.o dos.o fm.o fsd.o jsmn.o mfm.o mod.o nopi.o rfi.o
 
 bbcfdc-nopi.o: bbcfdc.c adfs.h dfi.h dfs.h diskstore.h dos.h fm.h fsd.h hardware.h jsmn.h mfm.h mod.h rfi.h
