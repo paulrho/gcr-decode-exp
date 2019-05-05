@@ -1,6 +1,8 @@
 #!/bin/sh
 cd src
 make
+make bbcfdc-nopi
+make display
 cd ..
 ln -s src/bbcfdc
 ln -s src/bbcfdc-nopi
