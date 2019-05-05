@@ -1,6 +1,8 @@
 //#define TYPE35
 //#define TYPE1541
+#ifndef TYPE35
 #define TYPE1571
+#endif
 
 #include "display.h"
 

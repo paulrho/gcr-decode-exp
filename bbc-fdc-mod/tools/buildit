@@ -9,6 +9,6 @@ ln -s src/bbcfdc-nopi
 ln -s src/checkfsd
 ln -s src/display
 ln -s src/drivetest
-# need to build the decoder first
-ln -s ../../src/r15
+# need to build the decoder first, and the link needs to be in place
+ln -s ../../r15
 
