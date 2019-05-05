@@ -1,0 +1,7 @@
+#!/bin/sh
+cd src
+make
+ln -s src/r15
+ln -s src/g64cr
+ln -s src/split_append
+
