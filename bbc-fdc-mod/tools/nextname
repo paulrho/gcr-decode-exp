@@ -1,0 +1,37 @@
+#DATE=$(date +%Y%m%d)
+# will find the next zero or empty file slot - but will skip a small gap and leave gap in place if missing files
+# will actually skip zero byte intermediate files, just worries about the last one
+if [ $# -ne 1 ]
+then
+  exit 1
+fi
+BASE=`echo $1 | sed "s/^\(.*\)\.[^\.]*$/\1/"`
+SUFFIX=`echo $1 | sed "s/^.*\(\.[^\.]*$\)/\1/"`
+#echo "BASE="$BASE
+#echo "SUFFIX="$SUFFIX
+#debug#echo "searching for ${BASE}-g???${SUFFIX}"
+LAST=`/bin/ls -1 ${BASE}-g???${SUFFIX} 2>/dev/null | tail -1`
+# find the last one - grab the number - increment by 1
+if [ "$LAST" = "" ]
+then
+  #num=100 # just start from 101
+  num=101
+  #echo "new"
+  filename="${BASE}-g${num}${SUFFIX}"
+  #debug#echo "file is:"$filename
+else
+  num=`echo $LAST | sed "s/^.*-g\(...\)$SUFFIX/\1/"`
+  # if this is zero byte - reuse it, otherwise inc
+  filename="${BASE}-g${num}${SUFFIX}"
+  if [ -s $filename ]
+  then
+    #echo "incrememnting"
+    num=$(( $num + 1 ))
+    filename="${BASE}-g${num}${SUFFIX}"
+  fi
+  #debug#echo "next file is:"$filename
+fi
+# may as well?
+#touch $filename
+echo $filename
+exit 0
