@@ -1,0 +1,5 @@
+ 2021  time sudo nice -n 20 ./runitpc img/whb1.img -rotations 1 -spidiv 32
+pi@raspberrypi:~/PGS3/github/gcr-decode-exp/detect $ time sudo nice -n 20 ./runitpc32 img/aug1_32.img -rotations 1 -spidiv 32
+
+(last options dont actually do anything)
+
